@@ -6,16 +6,35 @@
     <title>Grow a Garden Crop Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/favicon.ico" type="image/x-icon">
     <style>
         body { 
-            background: linear-gradient(to bottom, #e7f3e6, #d4e4d3); 
+            background: linear-gradient(to bottom, rgba(231, 243, 230, 0.9), rgba(212, 228, 211, 0.9)), url('https://images.unsplash.com/photo-1500595046743-ddf4d3d753fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed; 
+            background-size: cover;
             font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        .container { max-width: 900px; }
+        .container { max-width: 900px; margin: 0 auto; flex: 1; }
         .section-title { font-family: 'Georgia', serif; }
-        .mutation-checkbox:hover { background-color: #e6f3e6; }
-        .calculate-btn { transition: transform 0.2s, box-shadow 0.2s; }
-        .calculate-btn:hover { transform: scale(1.05); box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3); }
+        .mutation-checkbox:hover { background-color: #e6f3e6; transition: background-color 0.2s; }
+        .calculate-btn, .reset-btn { 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            animation: bounce 0.3s ease infinite alternate;
+        }
+        .calculate-btn:hover, .reset-btn:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3); 
+            animation-play-state: paused;
+        }
+        .input-field { 
+            transition: border-color 0.2s, box-shadow 0.2s; 
+        }
+        .input-field:hover, .input-field:focus { 
+            border-color: #10b981; 
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.2); 
+        }
         .output { 
             font-family: 'Courier New', monospace; 
             opacity: 0;
@@ -31,9 +50,23 @@
             border: 2px solid #10b981; 
             border-radius: 12px; 
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            transition: border-color 0.3s ease;
         }
+        .output-card:hover { border-color: #059669; }
         .output-title { font-family: 'Georgia', serif; }
         .output-value { font-size: 1.5rem; font-weight: bold; }
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.5s ease;
+        }
         .donation-section { background: #f9fafb; border-radius: 12px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
         .donation-option { transition: background-color 0.2s, box-shadow 0.2s; }
         .donation-option:hover { background-color: #e5e7eb; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
@@ -51,18 +84,83 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .footer {
-            margin-top: 2rem;
+            width: 100%;
             text-align: center;
             color: #6b7280;
             font-size: 0.875rem;
+            padding: 1rem 0;
+            margin-top: 2rem;
         }
         .section-icon {
             color: #10b981;
         }
+        .section-container {
+            background: #fefefe;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: box-shadow 0.3s ease;
+        }
+        .section-container:hover {
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #10b981;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        @keyframes leaf-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 0.8; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        .leaf {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: url('https://img.icons8.com/emoji/48/leaf-emoji.png') no-repeat center;
+            background-size: contain;
+            animation: leaf-fall 10s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-3px); }
+        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-    <div class="container mx-auto">
+<body>
+    <!-- Animated falling leaves -->
+    <div class="leaf" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="leaf" style="left: 30%; animation-delay: 2s;"></div>
+    <div class="leaf" style="left: 50%; animation-delay: 4s;"></div>
+    <div class="leaf" style="left: 70%; animation-delay: 6s;"></div>
+    <div class="leaf" style="left: 90%; animation-delay: 8s;"></div>
+
+    <div class="container">
         <div class="header-bg">
             <h1 class="text-4xl font-bold mb-2"><i class="fas fa-seedling mr-2"></i>Grow a Garden Crop Calculator</h1>
             <p class="text-lg">Harvest the best from your garden with precise calculations!</p>
@@ -70,270 +168,274 @@
         <div class="main-container p-6">
             <p class="text-gray-600 mb-6 text-center">Calculate the total price of your crop based on mutations from the Grow a Garden Fandom wiki. Select a crop to auto-fill its base value (minimum values from the wiki; adjust for average if known, ~1.108x minimum) and base weight (from community sources; default 1kg if unknown). Enter crop details, select a growth mutation, and check compatible environmental mutations. Invalid combinations will trigger an alert. <a href="https://growagarden.fandom.com/wiki/Crops#All" target="_blank" class="text-green-600 hover:underline">Source: Grow a Garden Wiki</a></p>
 
-            <section class="mb-6">
+            <section class="section-container">
                 <h2 class="section-title text-xl font-semibold text-green-600 mb-3"><i class="fas fa-carrot section-icon mr-2"></i>Crop Details</h2>
                 <label class="flex flex-col mb-4">
                     <span class="text-gray-700">Crop</span>
-                    <select id="crop" onchange="setCropDefaults()" class="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <select id="crop" onchange="setCropDefaults()" class="border rounded p-2 input-field focus:outline-none focus:ring-2 focus:ring-green-500">
                         <option value="">Select a crop</option>
                         <optgroup label="Common">
-                            <option value="Carrot" data-value="15" data-weight="1">Carrot</option>
-                            <option value="Strawberry" data-value="14" data-weight="1">Strawberry</option>
-                            <option value="Chocolate Carrot" data-value="15" data-weight="1">Chocolate Carrot</option>
+                            <option value="Carrot" data-value="15" data-weight="1" data-tooltip="Common tier, base crop">Carrot</option>
+                            <option value="Strawberry" data-value="14" data-weight="1" data-tooltip="Common tier, base crop">Strawberry</option>
+                            <option value="Chocolate Carrot" data-value="15" data-weight="1" data-tooltip="Common tier, event crop">Chocolate Carrot</option>
                         </optgroup>
                         <optgroup label="Uncommon">
-                            <option value="Blueberry" data-value="18" data-weight="1">Blueberry</option>
-                            <option value="Rose" data-value="4513" data-weight="1">Rose</option>
-                            <option value="Orange Tulip" data-value="767" data-weight="1">Orange Tulip</option>
-                            <option value="Monoblooma" data-value="19855" data-weight="1">Monoblooma</option>
-                            <option value="Dezen" data-value="26398" data-weight="1">Dezen</option>
-                            <option value="Crimson Vine" data-value="100" data-weight="1">Crimson Vine</option>
-                            <option value="Onion" data-value="10" data-weight="1">Onion</option>
-                            <option value="Artichoke" data-value="30" data-weight="1">Artichoke</option>
-                            <option value="Nightshade" data-value="3.5" data-weight="1">Nightshade</option>
-                            <option value="Manuka Flower" data-value="25" data-weight="1">Manuka Flower</option>
-                            <option value="Lavender" data-value="25" data-weight="1">Lavender</option>
-                            <option value="Wild Carrot" data-value="25" data-weight="1">Wild Carrot</option>
-                            <option value="Crocus" data-value="30" data-weight="1">Crocus</option>
-                            <option value="Stonebite" data-value="35" data-weight="1">Stonebite</option>
-                            <option value="Red Lollipop" data-value="50" data-weight="1">Red Lollipop</option>
+                            <option value="Blueberry" data-value="18" data-weight="1" data-tooltip="Uncommon tier, berry crop">Blueberry</option>
+                            <option value="Rose" data-value="4513" data-weight="1" data-tooltip="Uncommon tier, flower crop">Rose</option>
+                            <option value="Orange Tulip" data-value="767" data-weight="1" data-tooltip="Uncommon tier, flower crop">Orange Tulip</option>
+                            <option value="Monoblooma" data-value="19855" data-weight="1" data-tooltip="Uncommon tier, unique flower">Monoblooma</option>
+                            <option value="Dezen" data-value="26398" data-weight="1" data-tooltip="Uncommon tier, exotic crop">Dezen</option>
+                            <option value="Crimson Vine" data-value="100" data-weight="1" data-tooltip="Uncommon tier, vine crop">Crimson Vine</option>
+                            <option value="Onion" data-value="10" data-weight="1" data-tooltip="Uncommon tier, vegetable crop">Onion</option>
+                            <option value="Artichoke" data-value="30" data-weight="1" data-tooltip="Uncommon tier, vegetable crop">Artichoke</option>
+                            <option value="Nightshade" data-value="3.5" data-weight="1" data-tooltip="Uncommon tier, toxic crop">Nightshade</option>
+                            <option value="Manuka Flower" data-value="25" data-weight="1" data-tooltip="Uncommon tier, flower crop">Manuka Flower</option>
+                            <option value="Lavender" data-value="25" data-weight="1" data-tooltip="Uncommon tier, aromatic crop">Lavender</option>
+                            <option value="Wild Carrot" data-value="25" data-weight="1" data-tooltip="Uncommon tier, wild crop">Wild Carrot</option>
+                            <option value="Crocus" data-value="30" data-weight="1" data-tooltip="Uncommon tier, flower crop">Crocus</option>
+                            <option value="Stonebite" data-value="35" data-weight="1" data-tooltip="Uncommon tier, unique crop">Stonebite</option>
+                            <option value="Red Lollipop" data-value="50" data-weight="1" data-tooltip="Uncommon tier, event crop">Red Lollipop</option>
                         </optgroup>
                         <optgroup label="Rare">
-                            <option value="Tomato" data-value="27" data-weight="1">Tomato</option>
-                            <option value="Daffodil" data-value="903" data-weight="1">Daffodil</option>
-                            <option value="Cauliflower" data-value="36" data-weight="1">Cauliflower</option>
-                            <option value="Raspberry" data-value="90" data-weight="1">Raspberry</option>
-                            <option value="Foxglove" data-value="18050" data-weight="1">Foxglove</option>
-                            <option value="Corn" data-value="36" data-weight="1">Corn</option>
-                            <option value="Horsetail" data-value="27000" data-weight="1">Horsetail</option>
-                            <option value="Zenflare" data-value="22563" data-weight="1">Zenflare</option>
-                            <option value="Serenity" data-value="31588" data-weight="1">Serenity</option>
-                            <option value="Glowshroom" data-value="300" data-weight="1">Glowshroom</option>
-                            <option value="Mint" data-value="5.25" data-weight="1">Mint</option>
-                            <option value="Jalapeno" data-value="5" data-weight="1">Jalapeno</option>
-                            <option value="Twisted Tangle" data-value="22.5" data-weight="1">Twisted Tangle</option>
-                            <option value="Cranberry" data-value="35" data-weight="1">Cranberry</option>
-                            <option value="White Mulberry" data-value="40" data-weight="1">White Mulberry</option>
-                            <option value="Blue Lollipop" data-value="50" data-weight="1">Blue Lollipop</option>
-                            <option value="Green Lollipop" data-value="50" data-weight="1">Green Lollipop</option>
-                            <option value="Yellow Lollipop" data-value="50" data-weight="1">Yellow Lollipop</option>
-                            <option value="Pink Lollipop" data-value="50" data-weight="1">Pink Lollipop</option>
-                            <option value="Purple Lollipop" data-value="50" data-weight="1">Purple Lollipop</option>
-                            <option value="Black Lollipop" data-value="50" data-weight="1">Black Lollipop</option>
+                            <option value="Tomato" data-value="27" data-weight="1" data-tooltip="Rare tier, vegetable crop">Tomato</option>
+                            <option value="Daffodil" data-value="903" data-weight="1" data-tooltip="Rare tier, flower crop">Daffodil</option>
+                            <option value="Cauliflower" data-value="36" data-weight="1" data-tooltip="Rare tier, vegetable crop">Cauliflower</option>
+                            <option value="Raspberry" data-value="90" data-weight="1" data-tooltip="Rare tier, berry crop">Raspberry</option>
+                            <option value="Foxglove" data-value="18050" data-weight="1" data-tooltip="Rare tier, flower crop">Foxglove</option>
+                            <option value="Corn" data-value="36" data-weight="1" data-tooltip="Rare tier, grain crop">Corn</option>
+                            <option value="Horsetail" data-value="27000" data-weight="1" data-tooltip="Rare tier, unique crop">Horsetail</option>
+                            <option value="Zenflare" data-value="22563" data-weight="1" data-tooltip="Rare tier, exotic crop">Zenflare</option>
+                            <option value="Serenity" data-value="31588" data-weight="1" data-tooltip="Rare tier, unique crop">Serenity</option>
+                            <option value="Glowshroom" data-value="300" data-weight="1" data-tooltip="Rare tier, glowing crop">Glowshroom</option>
+                            <option value="Mint" data-value="5.25" data-weight="1" data-tooltip="Rare tier, herb crop">Mint</option>
+                            <option value="Jalapeno" data-value="5" data-weight="1" data-tooltip="Rare tier, spicy crop">Jalapeno</option>
+                            <option value="Twisted Tangle" data-value="22.5" data-weight="1" data-tooltip="Rare tier, unique crop">Twisted Tangle</option>
+                            <option value="Cranberry" data-value="35" data-weight="1" data-tooltip="Rare tier, berry crop">Cranberry</option>
+                            <option value="White Mulberry" data-value="40" data-weight="1" data-tooltip="Rare tier, berry crop">White Mulberry</option>
+                            <option value="Blue Lollipop" data-value="50" data-weight="1" data-tooltip="Rare tier, event crop">Blue Lollipop</option>
+                            <option value="Green Lollipop" data-value="50" data-weight="1" data-tooltip="Rare tier, event crop">Green Lollipop</option>
+                            <option value="Yellow Lollipop" data-value="50" data-weight="1" data-tooltip="Rare tier, event crop">Yellow Lollipop</option>
+                            <option value="Pink Lollipop" data-value="50" data-weight="1" data-tooltip="Rare tier, event crop">Pink Lollipop</option>
+                            <option value="Purple Lollipop" data-value="50" data-weight="1" data-tooltip="Rare tier, event crop">Purple Lollipop</option>
+                            <option value="Black Lollipop" data-value="50" data-weight="1" data-tooltip="Rare tier, event crop">Black Lollipop</option>
                         </optgroup>
                         <optgroup label="Legendary">
-                            <option value="Watermelon" data-value="2708" data-weight="1">Watermelon</option>
-                            <option value="Pumpkin" data-value="3069" data-weight="1">Pumpkin</option>
-                            <option value="Avocado" data-value="30685" data-weight="1">Avocado</option>
-                            <option value="Apple" data-value="248" data-weight="2.85">Apple</option>
-                            <option value="Green Apple" data-value="271" data-weight="2.85">Green Apple</option>
-                            <option value="Banana" data-value="1579" data-weight="1">Banana</option>
-                            <option value="Lilac" data-value="31588" data-weight="1">Lilac</option>
-                            <option value="Taro Flower" data-value="108300" data-weight="6.64">Taro Flower</option>
-                            <option value="Bamboo" data-value="3610" data-weight="1">Bamboo</option>
-                            <option value="Rafflesia" data-value="3159" data-weight="1">Rafflesia</option>
-                            <option value="Lingonberry" data-value="35000" data-weight="1">Lingonberry</option>
-                            <option value="Soft Sunshine" data-value="40613" data-weight="1">Soft Sunshine</option>
-                            <option value="Sakura Bush" data-value="25789" data-weight="1">Sakura Bush</option>
-                            <option value="Lucky Bamboo" data-value="58662" data-weight="4.75">Lucky Bamboo</option>
-                            <option value="Enkaku" data-value="55955" data-weight="4.75">Enkaku</option>
-                            <option value="Elder Strawberry" data-value="98432" data-weight="5.37">Elder Strawberry</option>
-                            <option value="Boneboo" data-value="1000" data-weight="14.5">Boneboo</option>
-                            <option value="Mushroom" data-value="1000" data-weight="25.9">Mushroom</option>
-                            <option value="Mega Mushroom" data-value="1000" data-weight="1">Mega Mushroom</option>
-                            <option value="Merica Mushroom" data-value="1000" data-weight="1">Merica Mushroom</option>
-                            <option value="Sinisterdrip" data-value="1000" data-weight="1">Sinisterdrip</option>
-                            <option value="Veinpetal" data-value="45100" data-weight="1">Veinpetal</option>
-                            <option value="Tacofern" data-value="74300" data-weight="8.96">Tacofern</option>
-                            <option value="Sugarglaze" data-value="1" data-weight="1">Sugarglaze</option>
-                            <option value="Grand Tomato" data-value="1" data-weight="1">Grand Tomato</option>
-                            <option value="Tall Asparagus" data-value="66000" data-weight="6.5">Tall Asparagus</option>
-                            <option value="Fruitball Tree" data-value="6250" data-weight="1">Fruitball Tree</option>
+                            <option value="Watermelon" data-value="2708" data-weight="1" data-tooltip="Legendary tier, fruit crop">Watermelon</option>
+                            <option value="Pumpkin" data-value="3069" data-weight="1" data-tooltip="Legendary tier, vegetable crop">Pumpkin</option>
+                            <option value="Avocado" data-value="30685" data-weight="1" data-tooltip="Legendary tier, fruit crop">Avocado</option>
+                            <option value="Apple" data-value="248" data-weight="2.85" data-tooltip="Legendary tier, fruit crop">Apple</option>
+                            <option value="Green Apple" data-value="271" data-weight="2.85" data-tooltip="Legendary tier, fruit crop">Green Apple</option>
+                            <option value="Banana" data-value="1579" data-weight="1" data-tooltip="Legendary tier, fruit crop">Banana</option>
+                            <option value="Lilac" data-value="31588" data-weight="1" data-tooltip="Legendary tier, flower crop">Lilac</option>
+                            <option value="Taro Flower" data-value="108300" data-weight="6.64" data-tooltip="Legendary tier, exotic flower">Taro Flower</option>
+                            <option value="Bamboo" data-value="3610" data-weight="1" data-tooltip="Legendary tier, plant crop">Bamboo</option>
+                            <option value="Rafflesia" data-value="3159" data-weight="1" data-tooltip="Legendary tier, unique flower">Rafflesia</option>
+                            <option value="Lingonberry" data-value="35000" data-weight="1" data-tooltip="Legendary tier, berry crop">Lingonberry</option>
+                            <option value="Soft Sunshine" data-value="40613" data-weight="1" data-tooltip="Legendary tier, unique flower">Soft Sunshine</option>
+                            <option value="Sakura Bush" data-value="25789" data-weight="1" data-tooltip="Legendary tier, flower crop">Sakura Bush</option>
+                            <option value="Lucky Bamboo" data-value="58662" data-weight="4.75" data-tooltip="Legendary tier, event crop">Lucky Bamboo</option>
+                            <option value="Enkaku" data-value="55955" data-weight="4.75" data-tooltip="Legendary tier, exotic crop">Enkaku</option>
+                            <option value="Elder Strawberry" data-value="98432" data-weight="5.37" data-tooltip="Legendary tier, enhanced berry">Elder Strawberry</option>
+                            <option value="Boneboo" data-value="1000" data-weight="14.5" data-tooltip="Legendary tier, event crop">Boneboo</option>
+                            <option value="Mushroom" data-value="1000" data-weight="25.9" data-tooltip="Legendary tier, fungal crop">Mushroom</option>
+                            <option value="Mega Mushroom" data-value="1000" data-weight="1" data-tooltip="Legendary tier, event crop">Mega Mushroom</option>
+                            <option value="Merica Mushroom" data-value="1000" data-weight="1" data-tooltip="Legendary tier, event crop">Merica Mushroom</option>
+                            <option value="Sinisterdrip" data-value="1000" data-weight="1" data-tooltip="Legendary tier, event crop">Sinisterdrip</option>
+                            <option value="Veinpetal" data-value="45100" data-weight="1" data-tooltip="Legendary tier, unique flower">Veinpetal</option>
+                            <option value="Tacofern" data-value="74300" data-weight="8.96" data-tooltip="Legendary tier, event crop">Tacofern</option>
+                            <option value="Sugarglaze" data-value="1" data-weight="1" data-tooltip="Legendary tier, event crop">Sugarglaze</option>
+                            <option value="Grand Tomato" data-value="1" data-weight="1" data-tooltip="Legendary tier, enhanced vegetable">Grand Tomato</option>
+                            <option value="Tall Asparagus" data-value="66000" data-weight="6.5" data-tooltip="Legendary tier, vegetable crop">Tall Asparagus</option>
+                            <option value="Fruitball Tree" data-value="6250" data-weight="1" data-tooltip="Legendary tier, event fruit tree">Fruitball Tree</option>
                         </optgroup>
                         <optgroup label="Mythical">
-                            <option value="Peach" data-value="271" data-weight="1">Peach</option>
-                            <option value="Pineapple" data-value="1805" data-weight="1">Pineapple</option>
-                            <option value="Amber Spine" data-value="55000" data-weight="5.7">Amber Spine</option>
-                            <option value="Coconut" data-value="361" data-weight="1">Coconut</option>
-                            <option value="Cactus" data-value="3069" data-weight="1">Cactus</option>
-                            <option value="Dragon Fruit" data-value="4287" data-weight="1">Dragon Fruit</option>
-                            <option value="Mango" data-value="5866" data-weight="1">Mango</option>
-                            <option value="Kiwi" data-value="2482" data-weight="1">Kiwi</option>
-                            <option value="Bell Pepper" data-value="4964" data-weight="1">Bell Pepper</option>
-                            <option value="Prickly Pear" data-value="4964" data-weight="1">Prickly Pear</option>
-                            <option value="Ember Lily" data-value="4964" data-weight="11.4">Ember Lily</option>
+                            <option value="Peach" data-value="271" data-weight="1" data-tooltip="Mythical tier, fruit crop">Peach</option>
+                            <option value="Pineapple" data-value="1805" data-weight="1" data-tooltip="Mythical tier, fruit crop">Pineapple</option>
+                            <option value="Amber Spine" data-value="55000" data-weight="5.7" data-tooltip="Mythical tier, exotic crop">Amber Spine</option>
+                            <option value="Coconut" data-value="361" data-weight="1" data-tooltip="Mythical tier, fruit crop">Coconut</option>
+                            <option value="Cactus" data-value="3069" data-weight="1" data-tooltip="Mythical tier, desert crop">Cactus</option>
+                            <option value="Dragon Fruit" data-value="4287" data-weight="1" data-tooltip="Mythical tier, exotic fruit">Dragon Fruit</option>
+                            <option value="Mango" data-value="5866" data-weight="1" data-tooltip="Mythical tier, fruit crop">Mango</option>
+                            <option value="Kiwi" data-value="2482" data-weight="1" data-tooltip="Mythical tier, fruit crop">Kiwi</option>
+                            <option value="Bell Pepper" data-value="4964" data-weight="1" data-tooltip="Mythical tier, vegetable crop">Bell Pepper</option>
+                            <option value="Prickly Pear" data-value="4964" data-weight="1" data-tooltip="Mythical tier, desert fruit">Prickly Pear</option>
+                            <option value="Ember Lily" data-value="4964" data-weight="11.4" data-tooltip="Mythical tier, fiery flower">Ember Lily</option>
                         </optgroup>
                         <optgroup label="Divine">
-                            <option value="Loquat" data-value="8000" data-weight="4.75">Loquat</option>
-                            <option value="Grand Volcania" data-value="70555" data-weight="6.65">Grand Volcania</option>
-                            <option value="Starfruit" data-value="3610" data-weight="1">Starfruit</option>
-                            <option value="Moon Melon" data-value="5415" data-weight="14.25">Moon Melon</option>
-                            <option value="Sunflower" data-value="5415" data-weight="15.65">Sunflower</option>
-                            <option value="Cherry" data-value="5415" data-weight="1">Cherry</option>
-                            <option value="Pomegranate" data-value="5415" data-weight="1">Pomegranate</option>
-                            <option value="Durian" data-value="5415" data-weight="1">Durian</option>
-                            <option value="Candy Blossom" data-value="5415" data-weight="2.85">Candy Blossom</option>
-                            <option value="Parasol Flower" data-value="5415" data-weight="5.7">Parasol Flower</option>
-                            <option value="Bendboo" data-value="139000" data-weight="17.09">Bendboo</option>
-                            <option value="Honeysuckle" data-value="90300" data-weight="11.4">Honeysuckle</option>
-                            <option value="Candy Sunflower" data-value="72200" data-weight="1.428">Candy Sunflower</option>
-                            <option value="Elephant Ears" data-value="69500" data-weight="17.1">Elephant Ears</option>
-                            <option value="Dragon Pepper" data-value="80000" data-weight="5.69">Dragon Pepper</option>
-                            <option value="Nectarshade" data-value="45100" data-weight="0.75">Nectarshade</option>
+                            <option value="Loquat" data-value="8000" data-weight="4.75" data-tooltip="Divine tier, fruit crop">Loquat</option>
+                            <option value="Grand Volcania" data-value="70555" data-weight="6.65" data-tooltip="Divine tier, volcanic crop">Grand Volcania</option>
+                            <option value="Starfruit" data-value="3610" data-weight="1" data-tooltip="Divine tier, exotic fruit">Starfruit</option>
+                            <option value="Moon Melon" data-value="5415" data-weight="14.25" data-tooltip="Divine tier, lunar fruit">Moon Melon</option>
+                            <option value="Sunflower" data-value="5415" data-weight="15.65" data-tooltip="Divine tier, radiant flower">Sunflower</option>
+                            <option value="Cherry" data-value="5415" data-weight="1" data-tooltip="Divine tier, fruit crop">Cherry</option>
+                            <option value="Pomegranate" data-value="5415" data-weight="1" data-tooltip="Divine tier, fruit crop">Pomegranate</option>
+                            <option value="Durian" data-value="5415" data-weight="1" data-tooltip="Divine tier, exotic fruit">Durian</option>
+                            <option value="Candy Blossom" data-value="5415" data-weight="2.85" data-tooltip="Divine tier, sweet flower">Candy Blossom</option>
+                            <option value="Parasol Flower" data-value="5415" data-weight="5.7" data-tooltip="Divine tier, unique flower">Parasol Flower</option>
+                            <option value="Bendboo" data-value="139000" data-weight="17.09" data-tooltip="Divine tier, flexible plant">Bendboo</option>
+                            <option value="Honeysuckle" data-value="90300" data-weight="11.4" data-tooltip="Divine tier, fragrant flower">Honeysuckle</option>
+                            <option value="Candy Sunflower" data-value="72200" data-weight="1.428" data-tooltip="Divine tier, sweet flower">Candy Sunflower</option>
+                            <option value="Elephant Ears" data-value="69500" data-weight="17.1" data-tooltip="Divine tier, large plant">Elephant Ears</option>
+                            <option value="Dragon Pepper" data-value="80000" data-weight="5.69" data-tooltip="Divine tier, spicy crop">Dragon Pepper</option>
+                            <option value="Nectarshade" data-value="45100" data-weight="0.75" data-tooltip="Divine tier, unique crop">Nectarshade</option>
                         </optgroup>
                         <optgroup label="Transcendent">
-                            <option value="Bone Blossom" data-value="5415" data-weight="3">Bone Blossom</option>
+                            <option value="Bone Blossom" data-value="5415" data-weight="3" data-tooltip="Transcendent tier, skeletal flower">Bone Blossom</option>
                         </optgroup>
                         <optgroup label="Unobtainable">
-                            <option value="Venus Fly Trap" data-value="10000" data-weight="9.5">Venus Fly Trap</option>
-                            <option value="Cursed Fruit" data-value="10000" data-weight="1">Cursed Fruit</option>
-                            <option value="Red Lollipop" data-value="1000" data-weight="1">Red Lollipop</option>
-                            <option value="Blue Lollipop" data-value="1000" data-weight="1">Blue Lollipop</option>
-                            <option value="Zen Rocks" data-value="1000" data-weight="17.1">Zen Rocks</option>
-                            <option value="Mushroom" data-value="1000" data-weight="25.9">Mushroom</option>
-                            <option value="Boneboo" data-value="1000" data-weight="14.5">Boneboo</option>
+                            <option value="Venus Fly Trap" data-value="10000" data-weight="9.5" data-tooltip="Unobtainable tier, carnivorous plant">Venus Fly Trap</option>
+                            <option value="Cursed Fruit" data-value="10000" data-weight="1" data-tooltip="Unobtainable tier, cursed crop">Cursed Fruit</option>
+                            <option value="Red Lollipop" data-value="1000" data-weight="1" data-tooltip="Unobtainable tier, event crop">Red Lollipop</option>
+                            <option value="Blue Lollipop" data-value="1000" data-weight="1" data-tooltip="Unobtainable tier, event crop">Blue Lollipop</option>
+                            <option value="Zen Rocks" data-value="1000" data-weight="17.1" data-tooltip="Unobtainable tier, unique crop">Zen Rocks</option>
+                            <option value="Mushroom" data-value="1000" data-weight="25.9" data-tooltip="Unobtainable tier, fungal crop">Mushroom</option>
+                            <option value="Boneboo" data-value="1000" data-weight="14.5" data-tooltip="Unobtainable tier, event crop">Boneboo</option>
                         </optgroup>
                     </select>
                 </label>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <label class="flex flex-col">
                         <span class="text-gray-700">Base Value</span>
-                        <input type="number" id="base_value" value="1" class="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="number" id="base_value" value="1" placeholder="e.g., 15" class="border rounded p-2 input-field focus:outline-none focus:ring-2 focus:ring-green-500">
                     </label>
                     <label class="flex flex-col">
                         <span class="text-gray-700">Base Weight (kg)</span>
-                        <input type="number" id="base_weight" value="1" class="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="number" id="base_weight" value="1" placeholder="e.g., 1" class="border rounded p-2 input-field focus:outline-none focus:ring-2 focus:ring-green-500">
                     </label>
                     <label class="flex flex-col">
                         <span class="text-gray-700">Actual Weight (kg)</span>
-                        <input type="number" id="weight" value="1" class="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <input type="number" id="weight" value="1" placeholder="e.g., 1" class="border rounded p-2 input-field focus:outline-none focus:ring-2 focus:ring-green-500">
                     </label>
                 </div>
             </section>
 
-            <section class="mb-6">
+            <section class="section-container">
                 <h2 class="section-title text-xl font-semibold text-green-600 mb-3"><i class="fas fa-seedling section-icon mr-2"></i>Growth Mutation</h2>
-                <select id="growth" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="none">None (x1)</option>
-                    <option value="gold">Gold (x20)</option>
-                    <option value="rainbow">Rainbow (x50)</option>
+                <select id="growth" class="w-full border rounded p-2 input-field focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="none" data-tooltip="No growth multiplier (1x)">None (x1)</option>
+                    <option value="gold" data-tooltip="Increases value by 20x">Gold (x20)</option>
+                    <option value="rainbow" data-tooltip="Increases value by 50x">Rainbow (x50)</option>
                 </select>
             </section>
 
-            <section class="mb-6">
+            <section class="section-container">
                 <h2 class="section-title text-xl font-semibold text-green-600 mb-3"><i class="fas fa-leaf section-icon mr-2"></i>Environmental Mutations</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <h3 class="font-medium text-gray-700 mb-2">Standard Mutations</h3>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Wet" data-value="2"> Wet (2)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Windstruck" data-value="2"> Windstruck (2)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Moonlit" data-value="2"> Moonlit (2)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Chilled" data-value="2"> Chilled (2)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Choc" data-value="2"> Choc (2)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Pollinated" data-value="3"> Pollinated (3)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sandy" data-value="3"> Sandy (3)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Clay" data-value="5"> Clay (5)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Verdant" data-value="5"> Verdant (5)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Bloodlit" data-value="5"> Bloodlit (5)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Twisted" data-value="5"> Twisted (5)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Drenched" data-value="5"> Drenched (5)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="HoneyGlazed" data-value="5"> HoneyGlazed (5)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Cloudtouched" data-value="5"> Cloudtouched (5)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Frozen" data-value="10"> Frozen (10)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Acidic" data-value="12"> Acidic (12)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Tempestuous" data-value="20"> Tempestuous (20)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Ceramic" data-value="30"> Ceramic (30)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Friendbound" data-value="70"> Friendbound (70)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sundried" data-value="85"> Sundried (85)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Aurora" data-value="90"> Aurora (90)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Shocked" data-value="100"> Shocked (100)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Paradisal" data-value="100"> Paradisal (100)</label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Wet" data-value="2"> Wet (2)<span class="tooltip-text">Adds 2x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Windstruck" data-value="2"> Windstruck (2)<span class="tooltip-text">Adds 2x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Moonlit" data-value="2"> Moonlit (2)<span class="tooltip-text">Adds 2x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Chilled" data-value="2"> Chilled (2)<span class="tooltip-text">Adds 2x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Choc" data-value="2"> Choc (2)<span class="tooltip-text">Adds 2x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Pollinated" data-value="3"> Pollinated (3)<span class="tooltip-text">Adds 3x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Sandy" data-value="3"> Sandy (3)<span class="tooltip-text">Adds 3x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Clay" data-value="5"> Clay (5)<span class="tooltip-text">Adds 5x multiplier, replaces Wet/Sandy</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Verdant" data-value="5"> Verdant (5)<span class="tooltip-text">Adds 5x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Bloodlit" data-value="5"> Bloodlit (5)<span class="tooltip-text">Adds 5x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Twisted" data-value="5"> Twisted (5)<span class="tooltip-text">Adds 5x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Drenched" data-value="5"> Drenched (5)<span class="tooltip-text">Adds 5x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="HoneyGlazed" data-value="5"> HoneyGlazed (5)<span class="tooltip-text">Adds 5x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Cloudtouched" data-value="5"> Cloudtouched (5)<span class="tooltip-text">Adds 5x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Frozen" data-value="10"> Frozen (10)<span class="tooltip-text">Adds 10x multiplier, removes Wet/Drenched/Chilled</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Acidic" data-value="12"> Acidic (12)<span class="tooltip-text">Adds 12x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Tempestuous" data-value="20"> Tempestuous (20)<span class="tooltip-text">Adds 20x multiplier, removes Windstruck/Twisted</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Ceramic" data-value="30"> Ceramic (30)<span class="tooltip-text">Adds 30x multiplier, removes Clay</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Friendbound" data-value="70"> Friendbound (70)<span class="tooltip-text">Adds 70x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Sundried" data-value="85"> Sundried (85)<span class="tooltip-text">Adds 85x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Aurora" data-value="90"> Aurora (90)<span class="tooltip-text">Adds 90x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Shocked" data-value="100"> Shocked (100)<span class="tooltip-text">Adds 100x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Paradisal" data-value="100"> Paradisal (100)<span class="tooltip-text">Adds 100x multiplier, removes Verdant/Sundried</span></label>
                     </div>
                     <div>
                         <h3 class="font-medium text-gray-700 mb-2">Limited Mutations</h3>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sauce" data-value="3"> Sauce (3)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Meatball" data-value="3"> Meatball (3)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Burnt" data-value="4"> Burnt (4)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Pasta" data-value="4"> Pasta (4)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Static" data-value="8"> Static (8)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Fried" data-value="8"> Fried (8)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Amber" data-value="10"> Amber (10)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Cooked" data-value="10"> Cooked (10)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Chakra" data-value="15"> Chakra (15)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="CorruptChakra" data-value="15"> CorruptChakra (15)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Spaghetti" data-value="15"> Spaghetti (15)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Tranquil" data-value="20"> Tranquil (20)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="OldAmber" data-value="20"> OldAmber (20)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Corrupt" data-value="20"> Corrupt (20)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Zombified" data-value="25"> Zombified (25)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="HarmonisedChakra" data-value="35"> HarmonisedChakra (35)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="AncientAmber" data-value="50"> AncientAmber (50)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="FoxfireChakra" data-value="90"> FoxfireChakra (90)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="CorruptFoxfireChakra" data-value="90"> CorruptFoxfireChakra (90)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Disco" data-value="125"> Disco (125)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="HarmonisedFoxfireChakra" data-value="190"> HarmonisedFoxfireChakra (190)</label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Sauce" data-value="3"> Sauce (3)<span class="tooltip-text">Adds 3x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Meatball" data-value="3"> Meatball (3)<span class="tooltip-text">Adds 3x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Burnt" data-value="4"> Burnt (4)<span class="tooltip-text">Adds 4x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Pasta" data-value="4"> Pasta (4)<span class="tooltip-text">Adds 4x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Static" data-value="8"> Static (8)<span class="tooltip-text">Adds 8x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Fried" data-value="8"> Fried (8)<span class="tooltip-text">Adds 8x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Amber" data-value="10"> Amber (10)<span class="tooltip-text">Adds 10x multiplier, only one Amber stage allowed</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Cooked" data-value="10"> Cooked (10)<span class="tooltip-text">Adds 10x multiplier, removes Burnt</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Chakra" data-value="15"> Chakra (15)<span class="tooltip-text">Adds 15x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="CorruptChakra" data-value="15"> CorruptChakra (15)<span class="tooltip-text">Adds 15x multiplier</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Spaghetti" data-value="15"> Spaghetti (15)<span class="tooltip-text">Adds 15x multiplier, removes Meatball/Sauce/Pasta</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Tranquil" data-value="20"> Tranquil (20)<span class="tooltip-text">Adds 20x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="OldAmber" data-value="20"> OldAmber (20)<span class="tooltip-text">Adds 20x multiplier, only one Amber stage allowed</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Corrupt" data-value="20"> Corrupt (20)<span class="tooltip-text">Adds 20x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Zombified" data-value="25"> Zombified (25)<span class="tooltip-text">Adds 25x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="HarmonisedChakra" data-value="35"> HarmonisedChakra (35)<span class="tooltip-text">Adds 35x multiplier, removes Chakra/CorruptChakra</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="AncientAmber" data-value="50"> AncientAmber (50)<span class="tooltip-text">Adds 50x multiplier, only one Amber stage allowed</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="FoxfireChakra" data-value="90"> FoxfireChakra (90)<span class="tooltip-text">Adds 90x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="CorruptFoxfireChakra" data-value="90"> CorruptFoxfireChakra (90)<span class="tooltip-text">Adds 90x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Disco" data-value="125"> Disco (125)<span class="tooltip-text">Adds 125x multiplier, event-based</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="HarmonisedFoxfireChakra" data-value="190"> HarmonisedFoxfireChakra (190)<span class="tooltip-text">Adds 190x multiplier, removes FoxfireChakra/CorruptFoxfireChakra</span></label>
                     </div>
                     <div>
                         <h3 class="font-medium text-gray-700 mb-2">Admin & Unreleased Mutations</h3>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Heavenly" data-value="5"> Heavenly (5)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Plasma" data-value="5"> Plasma (5)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Molten" data-value="25"> Molten (25)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Subzero" data-value="50"> Subzero (50)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Blitzshock" data-value="50"> Blitzshock (50)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sliced" data-value="50"> Sliced (50)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Infected" data-value="75"> Infected (75)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Jackpot" data-value="77"> Jackpot (77)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Radioactive" data-value="80"> Radioactive (80)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Alienlike" data-value="100"> Alienlike (100)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Celestial" data-value="100"> Celestial (100)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Galactic" data-value="120"> Galactic (120)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Touchdown" data-value="105"> Touchdown (105)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Meteoric" data-value="125"> Meteoric (125)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Voidtouched" data-value="135"> Voidtouched (135)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Wiltproof" data-value="4"> Wiltproof (4)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Eclipsed" data-value="15"> Eclipsed (15)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Enlightened" data-value="35"> Enlightened (35)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Cosmic" data-value="140"> Cosmic (140)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Equinox" data-value="165"> Equinox (165)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sunrise" data-value="10"> Sunrise (10)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Dawn" data-value="10"> Dawn (10)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sunset" data-value="10"> Sunset (10)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Dusk" data-value="10"> Dusk (10)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Horizon" data-value="35"> Horizon (35)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="HarmonisedTwilight" data-value="95"> HarmonisedTwilight (95)</label>
-                        <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Starised" data-value="230"> Starised (230)</label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Heavenly" data-value="5"> Heavenly (5)<span class="tooltip-text">Adds 5x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Plasma" data-value="5"> Plasma (5)<span class="tooltip-text">Adds 5x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Molten" data-value="25"> Molten (25)<span class="tooltip-text">Adds 25x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Subzero" data-value="50"> Subzero (50)<span class="tooltip-text">Adds 50x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Blitzshock" data-value="50"> Blitzshock (50)<span class="tooltip-text">Adds 50x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Sliced" data-value="50"> Sliced (50)<span class="tooltip-text">Adds 50x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Infected" data-value="75"> Infected (75)<span class="tooltip-text">Adds 75x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Jackpot" data-value="77"> Jackpot (77)<span class="tooltip-text">Adds 77x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Radioactive" data-value="80"> Radioactive (80)<span class="tooltip-text">Adds 80x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Alienlike" data-value="100"> Alienlike (100)<span class="tooltip-text">Adds 100x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Celestial" data-value="100"> Celestial (100)<span class="tooltip-text">Adds 100x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Galactic" data-value="120"> Galactic (120)<span class="tooltip-text">Adds 120x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Touchdown" data-value="105"> Touchdown (105)<span class="tooltip-text">Adds 105x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Meteoric" data-value="125"> Meteoric (125)<span class="tooltip-text">Adds 125x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Voidtouched" data-value="135"> Voidtouched (135)<span class="tooltip-text">Adds 135x multiplier, admin-only</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Wiltproof" data-value="4"> Wiltproof (4)<span class="tooltip-text">Adds 4x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Eclipsed" data-value="15"> Eclipsed (15)<span class="tooltip-text">Adds 15x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Enlightened" data-value="35"> Enlightened (35)<span class="tooltip-text">Adds 35x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Cosmic" data-value="140"> Cosmic (140)<span class="tooltip-text">Adds 140x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Equinox" data-value="165"> Equinox (165)<span class="tooltip-text">Adds 165x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Sunrise" data-value="10"> Sunrise (10)<span class="tooltip-text">Adds 10x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Dawn" data-value="10"> Dawn (10)<span class="tooltip-text">Adds 10x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Sunset" data-value="10"> Sunset (10)<span class="tooltip-text">Adds 10x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Dusk" data-value="10"> Dusk (10)<span class="tooltip-text">Adds 10x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Horizon" data-value="35"> Horizon (35)<span class="tooltip-text">Adds 35x multiplier, unreleased</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="HarmonisedTwilight" data-value="95"> HarmonisedTwilight (95)<span class="tooltip-text">Adds 95x multiplier, removes Sunrise/Sunset/Dawn/Dusk/Horizon</span></label>
+                        <label class="block mutation-checkbox p-2 rounded tooltip"><input type="checkbox" class="mutation" data-name="Starised" data-value="230"> Starised (230)<span class="tooltip-text">Adds 230x multiplier, unreleased</span></label>
                     </div>
                 </div>
             </section>
 
-            <button onclick="calculate()" class="calculate-btn w-full bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700">Calculate Total Price</button>
+            <div class="button-group">
+                <button onclick="calculate()" class="calculate-btn w-full sm:w-1/2 bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700">Calculate Total Price</button>
+                <button onclick="resetForm()" class="reset-btn w-full sm:w-1/2 bg-gray-500 text-white font-semibold py-2 rounded-lg hover:bg-gray-600">Reset Form</button>
+            </div>
             <div id="output" class="output mt-4 p-4 output-card">
                 <h3 class="output-title text-lg font-semibold text-green-700 mb-2">Calculation Result</h3>
                 <p id="total-price" class="output-value text-green-600">Total Price: 0.00 Sheckles</p>
                 <p id="multiplier" class="text-gray-600">Mutation Multiplier: 0.00x</p>
+                <div class="progress-bar"><div id="progress-fill" class="progress-fill" style="width: 0%;"></div></div>
             </div>
 
-        <section class="donation-section mt-8 p-4">
-            <h2 class="section-title text-xl font-semibold text-green-600 mb-3">Support the Calculator</h2>
-            <p class="text-gray-600 mb-4">Enjoying the calculator? Consider a small donation to keep it running!</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="donation-option p-4 rounded-lg border">
-                    <h3 class="font-medium text-gray-700">Cryptocurrency</h3>
-                    <p class="text-gray-600">Bitcoin (BTC): <span class="font-mono">bc1qhfp59ywsld3x8yakay9ua7kpfkmtwjqextll9j</span></p>
-                    <p class="text-gray-600">Ethereum (ETH): <span class="font-mono">0x26A2D8BF3a74608235D446a03c53c53C2A0DF31c</span></p>
-                    <p class="text-sm text-gray-500">Copy the address and send to your crypto wallet. Replace with your own address!</p>
+          <section class="donation-section mt-8 p-4">
+                <h2 class="section-title text-xl font-semibold text-green-600 mb-3">Support the Calculator</h2>
+                <p class="text-gray-600 mb-4">Enjoying the calculator? Consider a small donation to keep it running!</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="donation-option p-4 rounded-lg border">
+                        <h3 class="font-medium text-gray-700">Cryptocurrency</h3>
+                        <p class="text-gray-600">Bitcoin (BTC): <span class="font-mono">bc1qhfp59ywsld3x8yakay9ua7kpfkmtwjqextll9j</span></p>
+                        <p class="text-gray-600">Ethereum (ETH): <span class="font-mono">0x26A2D8BF3a74608235D446a03c53c53C2A0DF31c</span></p>
+                        <p class="text-sm text-gray-500">Copy the address and send to your crypto wallet. Replace with your own address!</p>
+                    </div>
+                    <div class="donation-option p-4 rounded-lg border">
+                        <h3 class="font-medium text-gray-700">PayPal</h3>
+                        <p class="text-gray-600">Donate via PayPal for a quick and secure option.</p>
+                        <a href="https://paypal.me/codysfinace" target="_blank" class="inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Donate with PayPal</a>
+                    </div>
                 </div>
-                <div class="donation-option p-4 rounded-lg border">
-                    <h3 class="font-medium text-gray-700">PayPal</h3>
-                    <p class="text-gray-600">Donate via PayPal for a quick and secure option.</p>
-                    <a href="https://paypal.me/codysfinace" target="_blank" class="inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Donate with PayPal</a>
-                </div>
-            </div>
-        </section>
+            </section>
     </div>
         </div>
         <footer class="footer">
-            <p>Made with <i class="fas fa-heart text-red-500"></i> by Grok | Data from Grow a Garden Wiki | &copy; 2025</p>
+            <p>Made with <i class="fas fa-heart text-red-500"></i> by CoYoMcFroYo and Grok | Data from <a href="https://growagarden.fandom.com/wiki/Crops#All" target="_blank" class="text-green-600 hover:underline">Grow a Garden Wiki</a> | &copy; 2025</p>
         </footer>
     </div>
 
@@ -345,6 +447,21 @@
             document.getElementById('base_value').value = value || 1;
             document.getElementById('base_weight').value = weight || 1;
             document.getElementById('weight').value = document.getElementById('base_weight').value; // Set actual weight to base by default
+        }
+
+        function resetForm() {
+            document.getElementById('crop').value = '';
+            document.getElementById('base_value').value = 1;
+            document.getElementById('base_weight').value = 1;
+            document.getElementById('weight').value = 1;
+            document.getElementById('growth').value = 'none';
+            document.querySelectorAll('.mutation').forEach(cb => cb.checked = false);
+            document.getElementById('total-price').innerText = 'Total Price: 0.00 Sheckles';
+            document.getElementById('multiplier').innerText = 'Mutation Multiplier: 0.00x';
+            document.getElementById('progress-fill').style.width = '0%';
+            const output = document.getElementById('output');
+            output.classList.remove('show');
+            setTimeout(() => output.classList.add('show'), 10);
         }
 
         function calculate() {
@@ -394,12 +511,15 @@
             }
 
             const env_multi = count === 0 ? 1 : 1 + sum - count;
+            const total_multi = growth_multi * env_multi;
             const crop_value = base_value * Math.pow(weight / base_weight, 2);
-            const total_price = crop_value * growth_multi * env_multi;
+            const total_price = crop_value * total_multi;
 
             const output = document.getElementById('output');
             document.getElementById('total-price').innerText = `Total Price: ${total_price.toFixed(2)} Sheckles`;
-            document.getElementById('multiplier').innerText = `Mutation Multiplier: ${(growth_multi * env_multi).toFixed(2)}x`;
+            document.getElementById('multiplier').innerText = `Mutation Multiplier: ${total_multi.toFixed(2)}x`;
+            // Update progress bar (scaled to max multiplier of 500 for visualization)
+            document.getElementById('progress-fill').style.width = `${Math.min((total_multi / 500) * 100, 100)}%`;
             output.classList.remove('show');
             setTimeout(() => output.classList.add('show'), 10); // Trigger fade-in animation
         }
