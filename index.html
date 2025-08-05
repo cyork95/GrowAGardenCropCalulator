@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grow a Garden Crop Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: linear-gradient(to bottom, #e7f3e6, #d4e4d3); }
+        .container { max-width: 800px; }
+        .section-title { font-family: 'Georgia', serif; }
+        .mutation-checkbox:hover { background-color: #e6f3e6; }
+        .calculate-btn { transition: transform 0.2s; }
+        .calculate-btn:hover { transform: scale(1.05); }
+        .output { font-family: 'Courier New', monospace; }
+        .donation-section { background: #f9fafb; border-radius: 8px; }
+        .donation-option { transition: background-color 0.2s; }
+        .donation-option:hover { background-color: #e5e7eb; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-3xl font-bold text-center text-green-700 mb-4">Grow a Garden Crop Calculator</h1>
+        <p class="text-gray-600 mb-6 text-center">Calculate the total price of your crop based on mutations from the Grow a Garden Fandom wiki. Enter crop details, select a growth mutation, and check compatible environmental mutations. Invalid combinations will trigger an alert.</p>
+
+        <section class="mb-6">
+            <h2 class="section-title text-xl font-semibold text-green-600 mb-3">Crop Details</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <label class="flex flex-col">
+                    <span class="text-gray-700">Base Value</span>
+                    <input type="number" id="base_value" value="1" class="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                </label>
+                <label class="flex flex-col">
+                    <span class="text-gray-700">Base Weight (kg)</span>
+                    <input type="number" id="base_weight" value="1" class="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                </label>
+                <label class="flex flex-col">
+                    <span class="text-gray-700">Actual Weight (kg)</span>
+                    <input type="number" id="weight" value="1" class="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                </label>
+            </div>
+        </section>
+
+        <section class="mb-6">
+            <h2 class="section-title text-xl font-semibold text-green-600 mb-3">Growth Mutation</h2>
+            <select id="growth" class="w-full border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="none">None (x1)</option>
+                <option value="gold">Gold (x20)</option>
+                <option value="rainbow">Rainbow (x50)</option>
+            </select>
+        </section>
+
+        <section class="mb-6">
+            <h2 class="section-title text-xl font-semibold text-green-600 mb-3">Environmental Mutations</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-2">Standard Mutations</h3>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Wet" data-value="2"> Wet (2)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Windstruck" data-value="2"> Windstruck (2)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Moonlit" data-value="2"> Moonlit (2)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Chilled" data-value="2"> Chilled (2)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Choc" data-value="2"> Choc (2)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Pollinated" data-value="3"> Pollinated (3)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sandy" data-value="3"> Sandy (3)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Clay" data-value="5"> Clay (5)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Verdant" data-value="5"> Verdant (5)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Bloodlit" data-value="5"> Bloodlit (5)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Twisted" data-value="5"> Twisted (5)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Drenched" data-value="5"> Drenched (5)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="HoneyGlazed" data-value="5"> HoneyGlazed (5)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Cloudtouched" data-value="5"> Cloudtouched (5)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Frozen" data-value="10"> Frozen (10)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Acidic" data-value="12"> Acidic (12)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Tempestuous" data-value="20"> Tempestuous (20)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Ceramic" data-value="30"> Ceramic (30)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Friendbound" data-value="70"> Friendbound (70)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sundried" data-value="85"> Sundried (85)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Aurora" data-value="90"> Aurora (90)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Shocked" data-value="100"> Shocked (100)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Paradisal" data-value="100"> Paradisal (100)</label>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-2">Limited Mutations</h3>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sauce" data-value="3"> Sauce (3)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Meatball" data-value="3"> Meatball (3)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Burnt" data-value="4"> Burnt (4)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Pasta" data-value="4"> Pasta (4)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Static" data-value="8"> Static (8)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Fried" data-value="8"> Fried (8)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Amber" data-value="10"> Amber (10)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Cooked" data-value="10"> Cooked (10)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Chakra" data-value="15"> Chakra (15)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="CorruptChakra" data-value="15"> CorruptChakra (15)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Spaghetti" data-value="15"> Spaghetti (15)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Tranquil" data-value="20"> Tranquil (20)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="OldAmber" data-value="20"> OldAmber (20)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Corrupt" data-value="20"> Corrupt (20)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Zombified" data-value="25"> Zombified (25)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="HarmonisedChakra" data-value="35"> HarmonisedChakra (35)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="AncientAmber" data-value="50"> AncientAmber (50)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="FoxfireChakra" data-value="90"> FoxfireChakra (90)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="CorruptFoxfireChakra" data-value="90"> CorruptFoxfireChakra (90)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Disco" data-value="125"> Disco (125)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="HarmonisedFoxfireChakra" data-value="190"> HarmonisedFoxfireChakra (190)</label>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-700 mb-2">Admin & Unreleased Mutations</h3>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Heavenly" data-value="5"> Heavenly (5)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Plasma" data-value="5"> Plasma (5)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Molten" data-value="25"> Molten (25)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Subzero" data-value="50"> Subzero (50)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Blitzshock" data-value="50"> Blitzshock (50)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sliced" data-value="50"> Sliced (50)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Infected" data-value="75"> Infected (75)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Jackpot" data-value="77"> Jackpot (77)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Radioactive" data-value="80"> Radioactive (80)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Alienlike" data-value="100"> Alienlike (100)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Galactic" data-value="120"> Galactic (120)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Touchdown" data-value="105"> Touchdown (105)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Meteoric" data-value="125"> Meteoric (125)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Voidtouched" data-value="135"> Voidtouched (135)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Wiltproof" data-value="4"> Wiltproof (4)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Eclipsed" data-value="15"> Eclipsed (15)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Enlightened" data-value="35"> Enlightened (35)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Cosmic" data-value="140"> Cosmic (140)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Equinox" data-value="165"> Equinox (165)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sunrise" data-value="10"> Sunrise (10)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Dawn" data-value="10"> Dawn (10)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Sunset" data-value="10"> Sunset (10)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Dusk" data-value="10"> Dusk (10)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Horizon" data-value="35"> Horizon (35)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="HarmonisedTwilight" data-value="95"> HarmonisedTwilight (95)</label>
+                    <label class="block mutation-checkbox p-2 rounded"><input type="checkbox" class="mutation" data-name="Starised" data-value="230"> Starised (230)</label>
+                </div>
+            </div>
+        </section>
+
+        <button onclick="calculate()" class="calculate-btn w-full bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700">Calculate Total Price</button>
+        <div id="output" class="output text-lg text-gray-800 mt-4 p-4 bg-gray-100 rounded-lg"></div>
+
+        <section class="donation-section mt-8 p-4">
+            <h2 class="section-title text-xl font-semibold text-green-600 mb-3">Support the Calculator</h2>
+            <p class="text-gray-600 mb-4">Enjoying the calculator? Consider a small donation to keep it running!</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="donation-option p-4 rounded-lg border">
+                    <h3 class="font-medium text-gray-700">Cryptocurrency</h3>
+                    <p class="text-gray-600">Bitcoin (BTC): <span class="font-mono">bc1qhfp59ywsld3x8yakay9ua7kpfkmtwjqextll9j</span></p>
+                    <p class="text-gray-600">Ethereum (ETH): <span class="font-mono">0x26A2D8BF3a74608235D446a03c53c53C2A0DF31c</span></p>
+                    <p class="text-sm text-gray-500">Copy the address and send to your crypto wallet. Replace with your own address!</p>
+                </div>
+                <div class="donation-option p-4 rounded-lg border">
+                    <h3 class="font-medium text-gray-700">PayPal</h3>
+                    <p class="text-gray-600">Donate via PayPal for a quick and secure option.</p>
+                    <a href="https://paypal.me/codysfinace" target="_blank" class="inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Donate with PayPal</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function calculate() {
+            const base_value = parseFloat(document.getElementById('base_value').value);
+            const base_weight = parseFloat(document.getElementById('base_weight').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            if (isNaN(base_value) || isNaN(base_weight) || isNaN(weight) || base_weight <= 0) {
+                alert('Please enter valid numbers for base value, base weight, and weight.');
+                return;
+            }
+
+            const growth = document.getElementById('growth').value;
+            const growth_multi = { none: 1, gold: 20, rainbow: 50 }[growth];
+
+            const checkboxes = document.querySelectorAll('.mutation:checked');
+            let selected = [];
+            let sum = 0;
+            let count = 0;
+            checkboxes.forEach(cb => {
+                const name = cb.dataset.name;
+                const value = parseFloat(cb.dataset.value);
+                selected.push(name);
+                sum += value;
+                count++;
+            });
+
+            // Check forbidden combinations
+            const forbidden = [
+                { cond: selected.includes('Clay') && (selected.includes('Wet') || selected.includes('Sandy')), msg: 'Clay replaces Wet and Sandy and cannot be stacked with them.' },
+                { cond: selected.includes('Frozen') && (selected.includes('Wet') || selected.includes('Drenched') || selected.includes('Chilled')), msg: 'Frozen removes Wet, Drenched, and Chilled and cannot be stacked with them.' },
+                { cond: selected.includes('Paradisal') && (selected.includes('Verdant') || selected.includes('Sundried')), msg: 'Paradisal removes Verdant and Sundried and cannot be stacked with them.' },
+                { cond: selected.includes('Tempestuous') && (selected.includes('Windstruck') || selected.includes('Twisted')), msg: 'Tempestuous removes Windstruck and Twisted and cannot be stacked with them.' },
+                { cond: selected.includes('Ceramic') && selected.includes('Clay'), msg: 'Ceramic removes Clay and cannot be stacked with it.' },
+                { cond: selected.includes('Cooked') && selected.includes('Burnt'), msg: 'Cooked removes Burnt and cannot be stacked with it.' },
+                { cond: selected.includes('HarmonisedChakra') && (selected.includes('Chakra') || selected.includes('CorruptChakra')), msg: 'HarmonisedChakra removes Chakra and CorruptChakra and cannot be stacked with them.' },
+                { cond: selected.includes('HarmonisedFoxfireChakra') && (selected.includes('FoxfireChakra') || selected.includes('CorruptFoxfireChakra')), msg: 'HarmonisedFoxfireChakra removes FoxfireChakra and CorruptFoxfireChakra and cannot be stacked with them.' },
+                { cond: selected.includes('Spaghetti') && (selected.includes('Meatball') || selected.includes('Sauce') || selected.includes('Pasta')), msg: 'Spaghetti combines and removes Meatball, Sauce, and Pasta and cannot be stacked with them.' },
+                { cond: selected.includes('HarmonisedTwilight') && (selected.includes('Sunrise') || selected.includes('Sunset') || selected.includes('Dawn') || selected.includes('Dusk') || selected.includes('Horizon')), msg: 'HarmonisedTwilight combines and removes Sunrise, Sunset, Dawn, Dusk, and Horizon and cannot be stacked with them.' },
+                { cond: [ 'Amber', 'OldAmber', 'AncientAmber' ].filter(stage => selected.includes(stage)).length > 1, msg: 'Only one Amber stage (Amber, OldAmber, AncientAmber) can be applied.' }
+            ];
+
+            for (let rule of forbidden) {
+                if (rule.cond) {
+                    alert(rule.msg);
+                    return;
+                }
+            }
+
+            const env_multi = count === 0 ? 1 : 1 + sum - count;
+            const crop_value = base_value * Math.pow(weight / base_weight, 2);
+            const total_price = crop_value * growth_multi * env_multi;
+
+            document.getElementById('output').innerText = `Total Price: ${total_price.toFixed(2)} Sheckles\nMutation Multiplier: ${(growth_multi * env_multi).toFixed(2)}x`;
+        }
+    </script>
+</body>
+</html>
