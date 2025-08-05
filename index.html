@@ -21,10 +21,92 @@
 <body class="min-h-screen flex items-center justify-center p-4">
     <div class="container mx-auto bg-white rounded-lg shadow-lg p-6">
         <h1 class="text-3xl font-bold text-center text-green-700 mb-4">Grow a Garden Crop Calculator</h1>
-        <p class="text-gray-600 mb-6 text-center">Calculate the total price of your crop based on mutations from the Grow a Garden Fandom wiki. Enter crop details, select a growth mutation, and check compatible environmental mutations. Invalid combinations will trigger an alert.</p>
+        <p class="text-gray-600 mb-6 text-center">Calculate the total price of your crop based on mutations from the Grow a Garden Fandom wiki. Select a crop to auto-fill its base value (minimum values from the wiki; adjust for average if known, ~1.108x minimum). Enter crop details, select a growth mutation, and check compatible environmental mutations. Invalid combinations will trigger an alert. <a href="https://growagarden.fandom.com/wiki/Crops#All" target="_blank" class="text-green-600 hover:underline">Source: Grow a Garden Wiki</a></p>
 
         <section class="mb-6">
             <h2 class="section-title text-xl font-semibold text-green-600 mb-3">Crop Details</h2>
+            <label class="flex flex-col mb-4">
+                <span class="text-gray-700">Crop</span>
+                <select id="crop" onchange="setCropDefaults()" class="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">Select a crop</option>
+                    <optgroup label="Common">
+                        <option value="Carrot" data-value="15">Carrot</option>
+                        <option value="Strawberry" data-value="14">Strawberry</option>
+                        <option value="Chocolate Carrot" data-value="15">Chocolate Carrot</option>
+                    </optgroup>
+                    <optgroup label="Uncommon">
+                        <option value="Blueberry" data-value="18">Blueberry</option>
+                        <option value="Rose" data-value="4513">Rose</option>
+                        <option value="Orange Tulip" data-value="767">Orange Tulip</option>
+                        <option value="Monoblooma" data-value="19855">Monoblooma</option>
+                        <option value="Dezen" data-value="26398">Dezen</option>
+                        <option value="Crimson Vine" data-value="100">Crimson Vine</option>
+                    </optgroup>
+                    <optgroup label="Rare">
+                        <option value="Tomato" data-value="27">Tomato</option>
+                        <option value="Daffodil" data-value="903">Daffodil</option>
+                        <option value="Cauliflower" data-value="36">Cauliflower</option>
+                        <option value="Raspberry" data-value="90">Raspberry</option>
+                        <option value="Foxglove" data-value="18050">Foxglove</option>
+                        <option value="Corn" data-value="36">Corn</option>
+                        <option value="Horsetail" data-value="27000">Horsetail</option>
+                        <option value="Zenflare" data-value="22563">Zenflare</option>
+                        <option value="Serenity" data-value="31588">Serenity</option>
+                    </optgroup>
+                    <optgroup label="Legendary">
+                        <option value="Watermelon" data-value="2708">Watermelon</option>
+                        <option value="Pumpkin" data-value="3069">Pumpkin</option>
+                        <option value="Avocado" data-value="30685">Avocado</option>
+                        <option value="Apple" data-value="248">Apple</option>
+                        <option value="Green Apple" data-value="271">Green Apple</option>
+                        <option value="Banana" data-value="1579">Banana</option>
+                        <option value="Lilac" data-value="31588">Lilac</option>
+                        <option value="Taro Flower" data-value="108300">Taro Flower</option>
+                        <option value="Bamboo" data-value="3610">Bamboo</option>
+                        <option value="Rafflesia" data-value="3159">Rafflesia</option>
+                        <option value="Lingonberry" data-value="35000">Lingonberry</option>
+                        <option value="Soft Sunshine" data-value="40613">Soft Sunshine</option>
+                        <option value="Sakura Bush" data-value="25789">Sakura Bush</option>
+                        <option value="Lucky Bamboo" data-value="58662">Lucky Bamboo</option>
+                        <option value="Enkaku" data-value="55955">Enkaku</option>
+                    </optgroup>
+                    <optgroup label="Mythical">
+                        <option value="Peach" data-value="271">Peach</option>
+                        <option value="Pineapple" data-value="1805">Pineapple</option>
+                        <option value="Amber Spine" data-value="55000">Amber Spine</option>
+                        <option value="Coconut" data-value="361">Coconut</option>
+                        <option value="Cactus" data-value="3069">Cactus</option>
+                        <option value="Dragon Fruit" data-value="4287">Dragon Fruit</option>
+                        <option value="Mango" data-value="5866">Mango</option>
+                        <option value="Kiwi" data-value="2482">Kiwi</option>
+                        <option value="Bell Pepper" data-value="4964">Bell Pepper</option>
+                        <option value="Prickly Pear" data-value="4964">Prickly Pear</option>
+                        <option value="Ember Lily" data-value="4964">Ember Lily</option>
+                    </optgroup>
+                    <optgroup label="Divine">
+                        <option value="Starfruit" data-value="3610">Starfruit</option>
+                        <option value="Moon Melon" data-value="5415">Moon Melon</option>
+                        <option value="Sunflower" data-value="5415">Sunflower</option>
+                        <option value="Cherry" data-value="5415">Cherry</option>
+                        <option value="Pomegranate" data-value="5415">Pomegranate</option>
+                        <option value="Durian" data-value="5415">Durian</option>
+                        <option value="Candy Blossom" data-value="5415">Candy Blossom</option>
+                        <option value="Parasol Flower" data-value="5415">Parasol Flower</option>
+                    </optgroup>
+                    <optgroup label="Transcendent">
+                        <option value="Bone Blossom" data-value="5415">Bone Blossom</option>
+                    </optgroup>
+                    <optgroup label="Unobtainable">
+                        <option value="Venus Fly Trap" data-value="10000">Venus Fly Trap</option>
+                        <option value="Cursed Fruit" data-value="10000">Cursed Fruit</option>
+                        <option value="Red Lollipop" data-value="1000">Red Lollipop</option>
+                        <option value="Blue Lollipop" data-value="1000">Blue Lollipop</option>
+                        <option value="Zen Rocks" data-value="1000">Zen Rocks</option>
+                        <option value="Mushroom" data-value="1000">Mushroom</option>
+                        <option value="Boneboo" data-value="1000">Boneboo</option>
+                    </optgroup>
+                </select>
+            </label>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <label class="flex flex-col">
                     <span class="text-gray-700">Base Value</span>
@@ -158,6 +240,14 @@
     </div>
 
     <script>
+        function setCropDefaults() {
+            const select = document.getElementById('crop');
+            const value = select.options[select.selectedIndex].dataset.value;
+            document.getElementById('base_value').value = value || 1;
+            document.getElementById('base_weight').value = 1; // Default to 1; adjust if you have crop-specific base weights
+            document.getElementById('weight').value = document.getElementById('base_weight').value; // Set actual weight to base by default
+        }
+
         function calculate() {
             const base_value = parseFloat(document.getElementById('base_value').value);
             const base_weight = parseFloat(document.getElementById('base_weight').value);
@@ -194,7 +284,7 @@
                 { cond: selected.includes('HarmonisedFoxfireChakra') && (selected.includes('FoxfireChakra') || selected.includes('CorruptFoxfireChakra')), msg: 'HarmonisedFoxfireChakra removes FoxfireChakra and CorruptFoxfireChakra and cannot be stacked with them.' },
                 { cond: selected.includes('Spaghetti') && (selected.includes('Meatball') || selected.includes('Sauce') || selected.includes('Pasta')), msg: 'Spaghetti combines and removes Meatball, Sauce, and Pasta and cannot be stacked with them.' },
                 { cond: selected.includes('HarmonisedTwilight') && (selected.includes('Sunrise') || selected.includes('Sunset') || selected.includes('Dawn') || selected.includes('Dusk') || selected.includes('Horizon')), msg: 'HarmonisedTwilight combines and removes Sunrise, Sunset, Dawn, Dusk, and Horizon and cannot be stacked with them.' },
-                { cond: [ 'Amber', 'OldAmber', 'AncientAmber' ].filter(stage => selected.includes(stage)).length > 1, msg: 'Only one Amber stage (Amber, OldAmber, AncientAmber) can be applied.' }
+                { cond: ['Amber', 'OldAmber', 'AncientAmber'].filter(stage => selected.includes(stage)).length > 1, msg: 'Only one Amber stage (Amber, OldAmber, AncientAmber) can be applied.' }
             ];
 
             for (let rule of forbidden) {
