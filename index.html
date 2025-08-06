@@ -357,7 +357,7 @@
                 <h2 class="section-title text-xl font-semibold text-green-600 mb-3"><i class="fas fa-carrot section-icon mr-2"></i>Crop Details</h2>
                 <label class="flex flex-col mb-4">
                     <span class="text-gray-700">Crop</span>
-                    <select id="crop" onchange="setCropDefaults()" class="border rounded p-2 input-field focus:outline-none focus:ring-2 focus:ring-green-500">
+                   <select id="crop" onchange="setCropDefaults()" class="border rounded p-2 input-field focus:outline-none focus:ring-2 focus:ring-green-500">
                         <option value="">Select a crop</option>
                         <optgroup label="Common">
                             <option value="Carrot" data-value="15" data-weight="1" data-tooltip="Common tier, base crop">Carrot</option>
@@ -403,6 +403,7 @@
                             <option value="Pink Lollipop" data-value="50" data-weight="1" data-tooltip="Rare tier, event crop">Pink Lollipop</option>
                             <option value="Purple Lollipop" data-value="50" data-weight="1" data-tooltip="Rare tier, event crop">Purple Lollipop</option>
                             <option value="Black Lollipop" data-value="50" data-weight="1" data-tooltip="Rare tier, event crop">Black Lollipop</option>
+                            <option value="Zen Rocks" data-value="1000" data-weight="17.1" data-tooltip="Rare tier, unique crop (formerly unobtainable)">Zen Rocks</option>
                         </optgroup>
                         <optgroup label="Legendary">
                             <option value="Watermelon" data-value="2708" data-weight="1" data-tooltip="Legendary tier, fruit crop">Watermelon</option>
@@ -421,8 +422,8 @@
                             <option value="Lucky Bamboo" data-value="58662" data-weight="4.75" data-tooltip="Legendary tier, event crop">Lucky Bamboo</option>
                             <option value="Enkaku" data-value="55955" data-weight="4.75" data-tooltip="Legendary tier, exotic crop">Enkaku</option>
                             <option value="Elder Strawberry" data-value="98432" data-weight="5.37" data-tooltip="Legendary tier, enhanced berry">Elder Strawberry</option>
-                            <option value="Boneboo" data-value="1000" data-weight="14.5" data-tooltip="Legendary tier, event crop">Boneboo</option>
-                            <option value="Mushroom" data-value="1000" data-weight="25.9" data-tooltip="Legendary tier, fungal crop">Mushroom</option>
+                            <option value="Boneboo" data-value="1000" data-weight="14.5" data-tooltip="Legendary tier, event crop (formerly unobtainable)">Boneboo</option>
+                            <option value="Mushroom" data-value="1000" data-weight="25.9" data-tooltip="Legendary tier, fungal crop (formerly unobtainable)">Mushroom</option>
                             <option value="Mega Mushroom" data-value="1000" data-weight="1" data-tooltip="Legendary tier, event crop">Mega Mushroom</option>
                             <option value="Merica Mushroom" data-value="1000" data-weight="1" data-tooltip="Legendary tier, event crop">Merica Mushroom</option>
                             <option value="Sinisterdrip" data-value="1000" data-weight="1" data-tooltip="Legendary tier, event crop">Sinisterdrip</option>
@@ -432,6 +433,7 @@
                             <option value="Grand Tomato" data-value="1" data-weight="1" data-tooltip="Legendary tier, enhanced vegetable">Grand Tomato</option>
                             <option value="Tall Asparagus" data-value="66000" data-weight="6.5" data-tooltip="Legendary tier, vegetable crop">Tall Asparagus</option>
                             <option value="Fruitball Tree" data-value="6250" data-weight="1" data-tooltip="Legendary tier, event fruit tree">Fruitball Tree</option>
+                            <option value="Crown Melon" data-value="12000" data-weight="1" data-tooltip="Legendary tier, fruit crop">Crown Melon</option>
                         </optgroup>
                         <optgroup label="Mythical">
                             <option value="Peach" data-value="271" data-weight="1" data-tooltip="Mythical tier, fruit crop">Peach</option>
@@ -445,6 +447,11 @@
                             <option value="Bell Pepper" data-value="4964" data-weight="1" data-tooltip="Mythical tier, vegetable crop">Bell Pepper</option>
                             <option value="Prickly Pear" data-value="4964" data-weight="1" data-tooltip="Mythical tier, desert fruit">Prickly Pear</option>
                             <option value="Ember Lily" data-value="4964" data-weight="11.4" data-tooltip="Mythical tier, fiery flower">Ember Lily</option>
+                            <option value="Pink Lily" data-value="10000" data-weight="1" data-tooltip="Mythical tier, flower crop">Pink Lily</option>
+                            <option value="Purple Dahlia" data-value="15000" data-weight="1" data-tooltip="Mythical tier, flower crop">Purple Dahlia</option>
+                            <option value="Grape" data-value="850000" data-weight="1" data-tooltip="Mythical tier, fruit crop">Grape</option>
+                            <option value="Venus Fly Trap" data-value="10000" data-weight="9.5" data-tooltip="Mythical tier, carnivorous plant (formerly unobtainable)">Venus Fly Trap</option>
+                            <option value="Cursed Fruit" data-value="10000" data-weight="1" data-tooltip="Mythical tier, cursed crop (formerly unobtainable)">Cursed Fruit</option>
                         </optgroup>
                         <optgroup label="Divine">
                             <option value="Loquat" data-value="8000" data-weight="4.75" data-tooltip="Divine tier, fruit crop">Loquat</option>
@@ -463,18 +470,18 @@
                             <option value="Elephant Ears" data-value="69500" data-weight="17.1" data-tooltip="Divine tier, large plant">Elephant Ears</option>
                             <option value="Dragon Pepper" data-value="80000" data-weight="5.69" data-tooltip="Divine tier, spicy crop">Dragon Pepper</option>
                             <option value="Nectarshade" data-value="45100" data-weight="0.75" data-tooltip="Divine tier, unique crop">Nectarshade</option>
+                            <option value="Mushroom" data-value="150000" data-weight="1" data-tooltip="Divine tier, fungal crop (formerly unobtainable)">Mushroom</option>
+                            <option value="Pepper" data-value="1000000" data-weight="1" data-tooltip="Divine tier, vegetable crop">Pepper</option>
+                            <option value="Cacao" data-value="2500000" data-weight="1" data-tooltip="Divine tier, exotic crop">Cacao</option>
+                            <option value="Feijoa" data-value="2750000" data-weight="1" data-tooltip="Divine tier, fruit crop">Feijoa</option>
+                            <option value="Pitcher Plant" data-value="7500000" data-weight="1" data-tooltip="Divine tier, carnivorous plant">Pitcher Plant</option>
                         </optgroup>
                         <optgroup label="Transcendent">
                             <option value="Bone Blossom" data-value="5415" data-weight="3" data-tooltip="Transcendent tier, skeletal flower">Bone Blossom</option>
                         </optgroup>
-                        <optgroup label="Unobtainable">
-                            <option value="Venus Fly Trap" data-value="10000" data-weight="9.5" data-tooltip="Unobtainable tier, carnivorous plant">Venus Fly Trap</option>
-                            <option value="Cursed Fruit" data-value="10000" data-weight="1" data-tooltip="Unobtainable tier, cursed crop">Cursed Fruit</option>
-                            <option value="Red Lollipop" data-value="1000" data-weight="1" data-tooltip="Unobtainable tier, event crop">Red Lollipop</option>
-                            <option value="Blue Lollipop" data-value="1000" data-weight="1" data-tooltip="Unobtainable tier, event crop">Blue Lollipop</option>
-                            <option value="Zen Rocks" data-value="1000" data-weight="17.1" data-tooltip="Unobtainable tier, unique crop">Zen Rocks</option>
-                            <option value="Mushroom" data-value="1000" data-weight="25.9" data-tooltip="Unobtainable tier, fungal crop">Mushroom</option>
-                            <option value="Boneboo" data-value="1000" data-weight="14.5" data-tooltip="Unobtainable tier, event crop">Boneboo</option>
+                        <optgroup label="Prismatic">
+                            <option value="Beanstalk" data-value="10000000" data-weight="1" data-tooltip="Prismatic tier, unique crop">Beanstalk</option>
+                            <option value="Ember Lily" data-value="15000000" data-weight="11.4" data-tooltip="Prismatic tier, fiery flower">Ember Lily</option>
                         </optgroup>
                     </select>
                 </label>
