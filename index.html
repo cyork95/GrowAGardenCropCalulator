@@ -172,6 +172,82 @@
             0% { transform: translateY(0); }
             100% { transform: translateY(-3px); }
         }
+        /* Dark Theme Styles */
+        body.dark-theme {
+            background: linear-gradient(to bottom, rgba(34, 47, 45, 0.9), rgba(17, 27, 25, 0.9)), url('https://images.unsplash.com/photo-1500595046743-ddf4d3d753fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: #e5e7eb;
+        }
+        .dark-theme .header-bg {
+            background: linear-gradient(to right, #065f46, #10b981);
+        }
+        .dark-theme .main-container {
+            background: #1f2937;
+        }
+        .dark-theme .section-container {
+            background: #374151;
+        }
+        .dark-theme .section-container:hover {
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.4);
+        }
+        .dark-theme .text-gray-600 {
+            color: #d1d5db;
+        }
+        .dark-theme .text-gray-700 {
+            color: #e5e7eb;
+        }
+        .dark-theme .output-card {
+            background: #1f2937;
+            border-color: #34d399;
+        }
+        .dark-theme .output-card:hover {
+            border-color: #10b981;
+        }
+        .dark-theme .donation-section {
+            background: #374151;
+        }
+        .dark-theme .donation-option {
+            border-color: #4b5563;
+        }
+        .dark-theme .donation-option:hover {
+            background: #4b5563;
+        }
+        .dark-theme .footer {
+            color: #d1d5db;
+        }
+        .dark-theme .table-row:nth-child(even) {
+            background-color: #4b5563;
+        }
+        .dark-theme .table-row:hover {
+            background-color: #10b981;
+        }
+        .dark-theme .bg-green-100 {
+            background-color: #065f46;
+        }
+        .dark-theme .calculate-btn {
+            background-color: #10b981;
+        }
+        .dark-theme .calculate-btn:hover {
+            background-color: #059669;
+        }
+        .dark-theme .reset-btn {
+            background-color: #6b7280;
+        }
+        .dark-theme .reset-btn:hover {
+            background-color: #4b5563;
+        }
+        .dark-theme .text-green-600 {
+            color: #34d399;
+        }
+        .dark-theme .text-green-700 {
+            color: #10b981;
+        }
+        .dark-theme .hover\:text-green-600:hover {
+            color: #34d399;
+        }
+        .dark-theme .tooltip .tooltip-text {
+            background-color: #065f46;
+        }
     </style>
 </head>
 <body>
@@ -186,6 +262,9 @@
         <div class="header-bg">
             <h1 class="text-4xl font-bold mb-2"><i class="fas fa-seedling mr-2"></i>Grow a Garden Crop Calculator</h1>
             <p class="text-lg">Harvest the best from your garden with precise calculations!</p>
+            <button onclick="toggleTheme()" class="mt-2 bg-white text-green-600 font-semibold py-1 px-3 rounded-lg hover:bg-gray-200 dark-theme:bg-gray-800 dark-theme:text-green-400 dark-theme:hover:bg-gray-700">
+    <i class="fas fa-moon mr-2"></i>Toggle Dark Mode
+</button>
         </div>
         <div class="main-container p-6">
             <p class="text-gray-600 mb-6 text-center">Calculate the total price of your crop based on mutations from the Grow a Garden Fandom wiki. Select a crop to auto-fill its base value (minimum values from the wiki; adjust for average if known, ~1.108x minimum) and base weight (from community sources; default 1kg if unknown). Enter crop details, select a growth mutation, and check compatible environmental mutations. Invalid combinations will trigger an alert. <a href="https://growagarden.fandom.com/wiki/Crops#All" target="_blank" class="text-green-600 hover:underline">Source: Grow a Garden Wiki</a></p>
@@ -844,6 +923,22 @@
             output.classList.remove('show');
             setTimeout(() => output.classList.add('show'), 10); // Trigger fade-in animation
         }
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            const button = document.querySelector('.header-bg button');
+            button.innerHTML = `<i class="fas fa-${isDark ? 'sun' : 'moon'} mr-2"></i>Toggle ${isDark ? 'Light' : 'Dark'} Mode`;
+        }
+        
+        // Apply saved theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-theme');
+                const button = document.querySelector('.header-bg button');
+                button.innerHTML = '<i class="fas fa-sun mr-2"></i>Toggle Light Mode';
+            }
+        });
     </script>
 </body>
 </html>
