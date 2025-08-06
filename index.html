@@ -248,6 +248,65 @@
         .dark-theme .tooltip .tooltip-text {
             background-color: #065f46;
         }
+        /* Custom Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            padding: 1rem;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .dark-theme .modal-content {
+            background: #1f2937;
+            border-color: #34d399;
+            color: #f3f4f6;
+        }
+        .modal-content p {
+            margin: 0.5rem 0;
+            color: #374151;
+        }
+        .dark-theme .modal-content p {
+            color: #f3f4f6;
+        }
+        .modal-content button {
+            background: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .modal-content button:hover {
+            background: #059669;
+        }
+        .dark-theme .modal-content button {
+            background: #34d399;
+        }
+        .dark-theme .modal-content button:hover {
+            background: #10b981;
+        }
+        /* Updated Dark Theme Text Colors for Better Readability */
+        .dark-theme .text-gray-600 {
+            color: #f3f4f6;
+        }
+        .dark-theme .text-gray-700 {
+            color: #e5e7eb;
+        }
     </style>
 </head>
 <body>
@@ -259,6 +318,12 @@
     <div class="leaf" style="left: 90%; animation-delay: 8s;"></div>
 
     <div class="container">
+        <div id="custom-alert" class="modal">
+            <div class="modal-content">
+                <p id="alert-message"></p>
+                <button onclick="closeAlert()">OK</button>
+            </div>
+        </div>
         <div class="header-bg">
             <h1 class="text-4xl font-bold mb-2"><i class="fas fa-seedling mr-2"></i>Grow a Garden Crop Calculator</h1>
             <p class="text-lg">Harvest the best from your garden with precise calculations!</p>
@@ -866,13 +931,13 @@
             const base_weight = parseFloat(document.getElementById('base_weight').value);
             const weight = parseFloat(document.getElementById('weight').value);
             if (isNaN(base_value) || isNaN(base_weight) || isNaN(weight) || base_weight <= 0) {
-                alert('Please enter valid numbers for base value, base weight, and weight.');
+                showAlert('Please enter valid numbers for base value, base weight, and weight.');
                 return;
             }
-
+        
             const growth = document.getElementById('growth').value;
             const growth_multi = { none: 1, gold: 20, rainbow: 50 }[growth];
-
+        
             const checkboxes = document.querySelectorAll('.mutation:checked');
             let selected = [];
             let sum = 0;
@@ -885,7 +950,7 @@
                 count++;
             });
 
-            // Check forbidden combinations
+    // Check forbidden combinations
             const forbidden = [
                 { cond: selected.includes('Clay') && (selected.includes('Wet') || selected.includes('Sandy')), msg: 'Clay replaces Wet and Sandy and cannot be stacked with them.' },
                 { cond: selected.includes('Frozen') && (selected.includes('Wet') || selected.includes('Drenched') || selected.includes('Chilled')), msg: 'Frozen removes Wet, Drenched, and Chilled and cannot be stacked with them.' },
@@ -899,45 +964,95 @@
                 { cond: selected.includes('HarmonisedTwilight') && (selected.includes('Sunrise') || selected.includes('Sunset') || selected.includes('Dawn') || selected.includes('Dusk') || selected.includes('Horizon')), msg: 'HarmonisedTwilight combines and removes Sunrise, Sunset, Dawn, Dusk, and Horizon and cannot be stacked with them.' },
                 { cond: ['Amber', 'OldAmber', 'AncientAmber'].filter(stage => selected.includes(stage)).length > 1, msg: 'Only one Amber stage (Amber, OldAmber, AncientAmber) can be applied.' }
             ];
-
+        
             for (let rule of forbidden) {
                 if (rule.cond) {
-                    alert(rule.msg);
+                    showAlert(rule.msg);
                     return;
                 }
             }
-
+        
             const env_multi = count === 0 ? 1 : 1 + sum - count;
             const total_multi = growth_multi * env_multi;
             const crop_value = base_value * Math.pow(weight / base_weight, 2);
             const total_price = crop_value * total_multi;
-
+        
             const output = document.getElementById('output');
             document.getElementById('crop-value').innerText = `Crop Value: ${crop_value.toFixed(2)}`;
             document.getElementById('growth-multi').innerText = `Growth Multiplier: ${growth_multi.toFixed(2)}x`;
             document.getElementById('env-multi').innerText = `Environmental Multiplier: ${env_multi.toFixed(2)}x`;
             document.getElementById('total-multi').innerText = `Total Multiplier: ${total_multi.toFixed(2)}x`;
             document.getElementById('total-price').innerText = `Total Price: ${total_price.toFixed(2)} Sheckles`;
-            // Update progress bar (scaled to max multiplier of 500 for visualization)
             document.getElementById('progress-fill').style.width = `${Math.min((total_multi / 500) * 100, 100)}%`;
             output.classList.remove('show');
-            setTimeout(() => output.classList.add('show'), 10); // Trigger fade-in animation
+            setTimeout(() => output.classList.add('show'), 10);
+        }
+        
+        function showAlert(message) {
+            const modal = document.getElementById('custom-alert');
+            const alertMessage = document.getElementById('alert-message');
+            alertMessage.textContent = message;
+            modal.style.display = 'flex';
+        }
+        
+        function closeAlert() {
+            const modal = document.getElementById('custom-alert');
+            modal.style.display = 'none';
+        }
+        
+        // Check forbidden combinations
+        const forbidden = [
+            { cond: selected.includes('Clay') && (selected.includes('Wet') || selected.includes('Sandy')), msg: 'Clay replaces Wet and Sandy and cannot be stacked with them.' },
+            { cond: selected.includes('Frozen') && (selected.includes('Wet') || selected.includes('Drenched') || selected.includes('Chilled')), msg: 'Frozen removes Wet, Drenched, and Chilled and cannot be stacked with them.' },
+            { cond: selected.includes('Paradisal') && (selected.includes('Verdant') || selected.includes('Sundried')), msg: 'Paradisal removes Verdant and Sundried and cannot be stacked with them.' },
+            { cond: selected.includes('Tempestuous') && (selected.includes('Windstruck') || selected.includes('Twisted')), msg: 'Tempestuous removes Windstruck and Twisted and cannot be stacked with them.' },
+            { cond: selected.includes('Ceramic') && selected.includes('Clay'), msg: 'Ceramic removes Clay and cannot be stacked with it.' },
+            { cond: selected.includes('Cooked') && selected.includes('Burnt'), msg: 'Cooked removes Burnt and cannot be stacked with it.' },
+            { cond: selected.includes('HarmonisedChakra') && (selected.includes('Chakra') || selected.includes('CorruptChakra')), msg: 'HarmonisedChakra removes Chakra and CorruptChakra and cannot be stacked with them.' },
+            { cond: selected.includes('HarmonisedFoxfireChakra') && (selected.includes('FoxfireChakra') || selected.includes('CorruptFoxfireChakra')), msg: 'HarmonisedFoxfireChakra removes FoxfireChakra and CorruptFoxfireChakra and cannot be stacked with them.' },
+            { cond: selected.includes('Spaghetti') && (selected.includes('Meatball') || selected.includes('Sauce') || selected.includes('Pasta')), msg: 'Spaghetti combines and removes Meatball, Sauce, and Pasta and cannot be stacked with them.' },
+            { cond: selected.includes('HarmonisedTwilight') && (selected.includes('Sunrise') || selected.includes('Sunset') || selected.includes('Dawn') || selected.includes('Dusk') || selected.includes('Horizon')), msg: 'HarmonisedTwilight combines and removes Sunrise, Sunset, Dawn, Dusk, and Horizon and cannot be stacked with them.' },
+            { cond: ['Amber', 'OldAmber', 'AncientAmber'].filter(stage => selected.includes(stage)).length > 1, msg: 'Only one Amber stage (Amber, OldAmber, AncientAmber) can be applied.' }
+        ];
+        
+        for (let rule of forbidden) {
+            if (rule.cond) {
+                alert(rule.msg);
+                return;
+            }
+        }
+        
+        const env_multi = count === 0 ? 1 : 1 + sum - count;
+        const total_multi = growth_multi * env_multi;
+        const crop_value = base_value * Math.pow(weight / base_weight, 2);
+        const total_price = crop_value * total_multi;
+        
+        const output = document.getElementById('output');
+        document.getElementById('crop-value').innerText = `Crop Value: ${crop_value.toFixed(2)}`;
+        document.getElementById('growth-multi').innerText = `Growth Multiplier: ${growth_multi.toFixed(2)}x`;
+        document.getElementById('env-multi').innerText = `Environmental Multiplier: ${env_multi.toFixed(2)}x`;
+        document.getElementById('total-multi').innerText = `Total Multiplier: ${total_multi.toFixed(2)}x`;
+        document.getElementById('total-price').innerText = `Total Price: ${total_price.toFixed(2)} Sheckles`;
+        // Update progress bar (scaled to max multiplier of 500 for visualization)
+        document.getElementById('progress-fill').style.width = `${Math.min((total_multi / 500) * 100, 100)}%`;
+        output.classList.remove('show');
+        setTimeout(() => output.classList.add('show'), 10); // Trigger fade-in animation
         }
         function toggleTheme() {
-            document.body.classList.toggle('dark-theme');
-            const isDark = document.body.classList.contains('dark-theme');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            const button = document.querySelector('.header-bg button');
-            button.innerHTML = `<i class="fas fa-${isDark ? 'sun' : 'moon'} mr-2"></i>Toggle ${isDark ? 'Light' : 'Dark'} Mode`;
+        document.body.classList.toggle('dark-theme');
+        const isDark = document.body.classList.contains('dark-theme');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        const button = document.querySelector('.header-bg button');
+        button.innerHTML = `<i class="fas fa-${isDark ? 'sun' : 'moon'} mr-2"></i>Toggle ${isDark ? 'Light' : 'Dark'} Mode`;
         }
         
         // Apply saved theme on page load
         document.addEventListener('DOMContentLoaded', () => {
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-theme');
-                const button = document.querySelector('.header-bg button');
-                button.innerHTML = '<i class="fas fa-sun mr-2"></i>Toggle Light Mode';
-            }
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-theme');
+            const button = document.querySelector('.header-bg button');
+            button.innerHTML = '<i class="fas fa-sun mr-2"></i>Toggle Light Mode';
+        }
         });
     </script>
 </body>
