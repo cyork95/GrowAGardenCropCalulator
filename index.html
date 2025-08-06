@@ -6,7 +6,7 @@
     <title>Grow a Garden Crop Calculator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="icon" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAPz8/AH9/f3B/f39gf39/cH9/f2B/f39wf39/YH9/f2B/f39gf39/YH9/f2B/f39gf39/YH9/f2B/f39gAAAAAC+vr7AAAAAAAAvr6+AAAAAAC+vr6AAAAAAL6+vgAAAAAAvr6+AAAAAAC+vr4AAAAAAAL6+vgAAAAAAvr6+AAAAAAC+vr4AAAAAAAL6+vgAAAAAAvr6+AAAAAAC+vr4AAAAAAAL6+vgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
     <style>
         body { 
             background: linear-gradient(to bottom, rgba(231, 243, 230, 0.9), rgba(212, 228, 211, 0.9)), url('https://images.unsplash.com/photo-1500595046743-ddf4d3d753fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed; 
@@ -50,9 +50,12 @@
             border: 2px solid #10b981; 
             border-radius: 12px; 
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-            transition: border-color 0.3s ease;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .output-card:hover { border-color: #059669; }
+        .output-card:hover { 
+            border-color: #059669; 
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); 
+        }
         .output-title { font-family: 'Georgia', serif; }
         .output-value { font-size: 1.5rem; font-weight: bold; }
         .progress-bar {
@@ -131,6 +134,25 @@
         .tooltip:hover .tooltip-text {
             visibility: visible;
             opacity: 1;
+        }
+        .table-row:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        .table-row:hover {
+            background-color: #e6f3e6;
+        }
+        .toggle-btn {
+            cursor: pointer;
+            color: #10b981;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .toggle-content {
+            display: none;
+        }
+        .toggle-content.active {
+            display: block;
         }
         @keyframes leaf-fall {
             0% { transform: translateY(-100vh) rotate(0deg); opacity: 0.8; }
@@ -410,29 +432,315 @@
             </div>
             <div id="output" class="output mt-4 p-4 output-card">
                 <h3 class="output-title text-lg font-semibold text-green-700 mb-2">Calculation Result</h3>
+                <p id="crop-value" class="text-gray-600">Crop Value: 0.00</p>
+                <p id="growth-multi" class="text-gray-600">Growth Multiplier: 0.00x</p>
+                <p id="env-multi" class="text-gray-600">Environmental Multiplier: 0.00x</p>
+                <p id="total-multi" class="text-gray-600">Total Multiplier: 0.00x</p>
                 <p id="total-price" class="output-value text-green-600">Total Price: 0.00 Sheckles</p>
-                <p id="multiplier" class="text-gray-600">Mutation Multiplier: 0.00x</p>
                 <div class="progress-bar"><div id="progress-fill" class="progress-fill" style="width: 0%;"></div></div>
             </div>
 
-          <section class="donation-section mt-8 p-4">
-                <h2 class="section-title text-xl font-semibold text-green-600 mb-3">Support the Calculator</h2>
-                <p class="text-gray-600 mb-4">Enjoying the calculator? Consider a small donation to keep it running!</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="donation-option p-4 rounded-lg border">
-                        <h3 class="font-medium text-gray-700">Cryptocurrency</h3>
-                        <p class="text-gray-600">Bitcoin (BTC): <span class="font-mono">bc1qhfp59ywsld3x8yakay9ua7kpfkmtwjqextll9j</span></p>
-                        <p class="text-gray-600">Ethereum (ETH): <span class="font-mono">0x26A2D8BF3a74608235D446a03c53c53C2A0DF31c</span></p>
-                        <p class="text-sm text-gray-500">Copy the address and send to your crypto wallet. Replace with your own address!</p>
-                    </div>
-                    <div class="donation-option p-4 rounded-lg border">
-                        <h3 class="font-medium text-gray-700">PayPal</h3>
-                        <p class="text-gray-600">Donate via PayPal for a quick and secure option.</p>
-                        <a href="https://paypal.me/codysfinace" target="_blank" class="inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Donate with PayPal</a>
-                    </div>
+            <section class="section-container">
+                <h2 class="section-title text-xl font-semibold text-green-600 mb-3 toggle-btn" onclick="toggleSection('events-content')"><i class="fas fa-cloud-rain section-icon mr-2"></i>Events and Crop Mutations Explanation <i class="fas fa-chevron-down ml-2"></i></h2>
+                <div id="events-content" class="toggle-content">
+                    <p class="text-gray-600 mb-4">Events in Grow a Garden are special occurrences that can trigger unique mutations on crops, increasing their value. Some mutations are tied to weather events, while others come from seasonal or limited-time events. Below is a summary of all events and their effects on crop mutations, including multipliers and compatibility. Mutations from events can stack with others unless specified.</p>
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-green-100">
+                                <th class="border p-2 text-left">Event</th>
+                                <th class="border p-2 text-left">Mutation(s)</th>
+                                <th class="border p-2 text-left">Multiplier(s)</th>
+                                <th class="border p-2 text-left">How It Affects Mutations</th>
+                                <th class="border p-2 text-left">Compatibility/Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row">
+                                <td class="border p-2">Windy Event</td>
+                                <td class="border p-2">Windstruck</td>
+                                <td class="border p-2">2x</td>
+                                <td class="border p-2">Occurs rarely; affects crops with wind, granting Windstruck mutation to increase value.</td>
+                                <td class="border p-2">Compatible with most; removed by Tempestuous. No replacement rules.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Tornado Event</td>
+                                <td class="border p-2">Twisted</td>
+                                <td class="border p-2">5x</td>
+                                <td class="border p-2">Triggered by severe wind; crops gain Twisted mutation during the event.</td>
+                                <td class="border p-2">Compatible with most; removed by Tempestuous. No specific conditions.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Rain Event</td>
+                                <td class="border p-2">Wet, Drenched</td>
+                                <td class="border p-2">2x (Wet), 5x (Drenched)</td>
+                                <td class="border p-2">Hydrates crops automatically; can grant Wet or Drenched mutations based on intensity.</td>
+                                <td class="border p-2">Wet/Drenched replaced by Frozen or Clay. Compatible with others.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Storm Event</td>
+                                <td class="border p-2">Shocked</td>
+                                <td class="border p-2">100x</td>
+                                <td class="border p-2">Increases mutation rates; crops may gain Shocked mutation during storms.</td>
+                                <td class="border p-2">Compatible with most; no replacement rules noted.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Snow Event</td>
+                                <td class="border p-2">Chilled, Frozen</td>
+                                <td class="border p-2">2x (Chilled), 10x (Frozen)</td>
+                                <td class="border p-2">Affects crop temperature; grants Chilled or Frozen mutations.</td>
+                                <td class="border p-2">Chilled/Frozen removed by Frozen (upgrades). Compatible with others.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Heat Wave Event</td>
+                                <td class="border p-2">Sundried</td>
+                                <td class="border p-2">85x</td>
+                                <td class="border p-2">Increases heat; crops can gain Sundried mutation if exposed.</td>
+                                <td class="border p-2">Compatible with most; removed by Paradisal.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Corrupted Event</td>
+                                <td class="border p-2">Static, Corrupt, CorruptChakra, CorruptFoxfireChakra</td>
+                                <td class="border p-2">8x (Static), 20x (Corrupt), 15x (CorruptChakra), 90x (CorruptFoxfireChakra)</td>
+                                <td class="border p-2">Uses Raiju fox every 10.30 minutes to apply Static; other corrupted mutations during event.</td>
+                                <td class="border p-2">CorruptChakra removed by HarmonisedChakra. Compatible with most.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Chakra Event</td>
+                                <td class="border p-2">Chakra, HarmonisedChakra, FoxfireChakra, HarmonisedFoxfireChakra</td>
+                                <td class="border p-2">15x (Chakra), 35x (HarmonisedChakra), 90x (FoxfireChakra), 190x (HarmonisedFoxfireChakra)</td>
+                                <td class="border p-2">Introduces Chakra-based mutations; higher tiers combine lower ones.</td>
+                                <td class="border p-2">Harmonised removes lower Chakra variants. Only one per crop.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Spaghetti Event</td>
+                                <td class="border p-2">Sauce, Meatball, Pasta, Spaghetti</td>
+                                <td class="border p-2">3x (Sauce/Meatball), 4x (Pasta), 15x (Spaghetti)</td>
+                                <td class="border p-2">Event for food-themed mutations; Spaghetti combines the others.</td>
+                                <td class="border p-2">Spaghetti removes Sauce/Meatball/Pasta. Compatible with others.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Amber Event</td>
+                                <td class="border p-2">Amber, OldAmber, AncientAmber</td>
+                                <td class="border p-2">10x (Amber), 20x (OldAmber), 50x (AncientAmber)</td>
+                                <td class="border p-2">Progressive Amber stages during event; upgrades over time.</td>
+                                <td class="border p-2">Only one Amber stage per crop; cannot stack stages.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Zombified Event (Halloween)</td>
+                                <td class="border p-2">Zombified</td>
+                                <td class="border p-2">25x</td>
+                                <td class="border p-2">Halloween event grants Zombified mutation to crops.</td>
+                                <td class="border p-2">Compatible with most; no replacement rules.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Disco Event</td>
+                                <td class="border p-2">Disco</td>
+                                <td class="border p-2">125x</td>
+                                <td class="border p-2">Event for Disco mutation, adding visual effects and value.</td>
+                                <td class="border p-2">Compatible with most; no replacement rules.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Blood Moon Event</td>
+                                <td class="border p-2">Bloodlit</td>
+                                <td class="border p-2">5x</td>
+                                <td class="border p-2">Night event for Bloodlit mutation.</td>
+                                <td class="border p-2">Compatible with most; no replacement rules.</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="border p-2">Moonlit Event</td>
+                                <td class="border p-2">Moonlit</td>
+                                <td class="border p-2">2x</td>
+                                <td class="border p-2">Night event for Moonlit mutation.</td>
+                                <td class="border p-2">Compatible with most; no replacement rules.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
-    </div>
+            
+            <section class="section-container">
+                <h2 class="section-title text-xl font-semibold text-green-600 mb-3 toggle-btn" onclick="toggleSection('pets-content')"><i class="fas fa-paw section-icon mr-2"></i>Pets Affecting Mutations <i class="fas fa-chevron-down ml-2"></i></h2>
+                <div id="pets-content" class="toggle-content">
+                    <p class="text-gray-600 mb-4">Pets in Grow a Garden can apply mutations to crops under certain conditions. Below is a table of pets that affect mutations, with tooltips for details on hover. Multipliers are consistent with the mutation values used in the calculator.</p>
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-green-100">
+                                <th class="border p-2 text-left">Pet</th>
+                                <th class="border p-2 text-left">Mutation</th>
+                                <th class="border p-2 text-left">Multiplier</th>
+                                <th class="border p-2 text-left">Conditions/Probability</th>
+                                <th class="border p-2 text-left">Compatibility</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Butterfly</td>
+                                <td class="border p-2">Rainbow</td>
+                                <td class="border p-2">50x</td>
+                                <td class="border p-2">Direct application when near crops</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Rainbow mutation (50x multiplier) to crops, enhancing their appearance and value. Obtained via butterfly catching events.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Dragonfly</td>
+                                <td class="border p-2">Gold</td>
+                                <td class="border p-2">20x</td>
+                                <td class="border p-2">Direct application when near crops</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Gold mutation (20x multiplier) to crops, increasing their value. Found in garden areas during gameplay.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Disco Bee</td>
+                                <td class="border p-2">Disco</td>
+                                <td class="border p-2">125x</td>
+                                <td class="border p-2">Direct application during Disco Event</td>
+                                <td class="border p-2">Compatible with most mutations<span class="tooltip-text">Grants the Disco mutation (125x multiplier) during Disco Events, adding vibrant visual effects. Rare event pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Bee</td>
+                                <td class="border p-2">Pollinated</td>
+                                <td class="border p-2">3x</td>
+                                <td class="border p-2">Direct application when near crops</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Pollinated mutation (3x multiplier), aiding crop growth. Common pet found in gardens.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Honey Bee</td>
+                                <td class="border p-2">Pollinated, HoneyGlazed</td>
+                                <td class="border p-2">3x (Pollinated), 5x (HoneyGlazed)</td>
+                                <td class="border p-2">Direct application when near crops</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants Pollinated (3x) or HoneyGlazed (5x) mutations, enhancing crop sweetness and value. Obtained via honey collection.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Petal Bee</td>
+                                <td class="border p-2">Pollinated</td>
+                                <td class="border p-2">3x</td>
+                                <td class="border p-2">Direct application when near crops</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Pollinated mutation (3x multiplier), supporting crop pollination. Flower-themed pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Queen Bee</td>
+                                <td class="border p-2">Pollinated</td>
+                                <td class="border p-2">3x</td>
+                                <td class="border p-2">Direct application, higher probability</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Pollinated mutation (3x multiplier) with higher efficiency. Rare pet from bee hives.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Wasp</td>
+                                <td class="border p-2">Pollinated</td>
+                                <td class="border p-2">3x</td>
+                                <td class="border p-2">Direct application when near crops</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Pollinated mutation (3x multiplier), aiding crop growth. Found in wild areas.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Tarantula Hawk</td>
+                                <td class="border p-2">Pollinated</td>
+                                <td class="border p-2">3x</td>
+                                <td class="border p-2">Direct application when near crops</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Pollinated mutation (3x multiplier), supporting crop pollination. Rare insect pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Pack Bee</td>
+                                <td class="border p-2">Pollinated</td>
+                                <td class="border p-2">3x</td>
+                                <td class="border p-2">Direct application, affects multiple crops</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Pollinated mutation (3x multiplier) to multiple crops at once. Group-oriented pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Bear Bee</td>
+                                <td class="border p-2">HoneyGlazed</td>
+                                <td class="border p-2">5x</td>
+                                <td class="border p-2">Direct application when near crops</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the HoneyGlazed mutation (5x multiplier), enhancing crop sweetness. Rare bear-themed pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Sea Turtle</td>
+                                <td class="border p-2">Wet</td>
+                                <td class="border p-2">2x</td>
+                                <td class="border p-2">Direct application near water plots</td>
+                                <td class="border p-2">Removed by Frozen/Clay<span class="tooltip-text">Grants the Wet mutation (2x multiplier), increasing crop moisture. Found near water areas.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Kappa</td>
+                                <td class="border p-2">Wet, Bloodlit</td>
+                                <td class="border p-2">2x (Wet), 5x (Bloodlit)</td>
+                                <td class="border p-2">Direct application, higher chance at night</td>
+                                <td class="border p-2">Wet removed by Frozen/Clay<span class="tooltip-text">Grants Wet (2x) or Bloodlit (5x) mutations, especially during Blood Moon events. Mythical water pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Scarlet Macaw</td>
+                                <td class="border p-2">Verdant</td>
+                                <td class="border p-2">5x</td>
+                                <td class="border p-2">Direct application in lush areas</td>
+                                <td class="border p-2">Removed by Paradisal<span class="tooltip-text">Grants the Verdant mutation (5x multiplier), enhancing crop lushness. Found in tropical areas.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Hyacinth Macaw</td>
+                                <td class="border p-2">Cloudtouched</td>
+                                <td class="border p-2">5x</td>
+                                <td class="border p-2">Direct application during cloudy weather</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Cloudtouched mutation (5x multiplier), adding a misty effect. Rare bird pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Pterodactyl</td>
+                                <td class="border p-2">Windstruck, Twisted</td>
+                                <td class="border p-2">2x (Windstruck), 5x (Twisted)</td>
+                                <td class="border p-2">Direct application during windy conditions</td>
+                                <td class="border p-2">Removed by Tempestuous<span class="tooltip-text">Grants Windstruck (2x) or Twisted (5x) mutations during windy events. Prehistoric pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Polar Bear</td>
+                                <td class="border p-2">Chilled, Frozen</td>
+                                <td class="border p-2">2x (Chilled), 10x (Frozen)</td>
+                                <td class="border p-2">Direct application in cold areas</td>
+                                <td class="border p-2">Chilled removed by Frozen<span class="tooltip-text">Grants Chilled (2x) or Frozen (10x) mutations in snowy conditions. Arctic pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Cooked Owl</td>
+                                <td class="border p-2">Burnt, Cooked</td>
+                                <td class="border p-2">4x (Burnt), 10x (Cooked)</td>
+                                <td class="border p-2">Direct application during cooking events</td>
+                                <td class="border p-2">Burnt removed by Cooked<span class="tooltip-text">Grants Burnt (4x) or Cooked (10x) mutations during food-themed events. Event-specific pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Chicken Zombie</td>
+                                <td class="border p-2">Zombified</td>
+                                <td class="border p-2">25x</td>
+                                <td class="border p-2">Direct application during Halloween</td>
+                                <td class="border p-2">Compatible with all mutations<span class="tooltip-text">Grants the Zombified mutation (25x multiplier) during Halloween events. Spooky pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Raptor</td>
+                                <td class="border p-2">Amber</td>
+                                <td class="border p-2">10x</td>
+                                <td class="border p-2">Direct application during Amber Event</td>
+                                <td class="border p-2">Only one Amber stage allowed<span class="tooltip-text">Grants the Amber mutation (10x multiplier), upgradable to Old/Ancient Amber. Prehistoric pet.</span></td>
+                            </tr>
+                            <tr class="table-row tooltip">
+                                <td class="border p-2">Kodama</td>
+                                <td class="border p-2">Tranquil, Corrupt</td>
+                                <td class="border p-2">20x (Tranquil), 20x (Corrupt)</td>
+                                <td class="border p-2">4.2% chance per harvest on Zen crops</td>
+                                <td class="border p-2">Compatible with most mutations<span class="tooltip-text">Grants Tranquil or Corrupt mutations (20x multiplier each) to Zen-type crops like Serenity with a 4.2% chance per harvest. Ideal for multi-harvest farming.</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="donation-section mt-8 p-4">
+                <h2 class="section-title text-xl font-semibold text-green-600 mb-3"><i class="fas fa-heart section-icon mr-2"></i>Support the Calculator</h2>
+                <p class="text-gray-600 mb-4">Enjoying the calculator? Consider a small donation to keep it running!</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="donation-option p-4 rounded-lg border">
+                        <h3 class="font-medium text-gray-700"><i class="fab fa-bitcoin mr-2"></i>Cryptocurrency</h3>
+                        <p class="text-gray-600">Bitcoin (BTC): <span class="font-mono">bc1qhfp59ywsld3x8yakay9ua7kpfkmtwjqextll9j</span></p>
+                        <p class="text-gray-600">Ethereum (ETH): <span class="font-mono">0x26A2D8BF3a74608235D446a03c53c53C2A0DF31c</span></p>
+                    </div>
+                    <div class="donation-option p-4 rounded-lg border">
+                        <h3 class="font-medium text-gray-700"><i class="fab fa-paypal mr-2"></i>PayPal</h3>
+                        <p class="text-gray-600">Donate via PayPal for a quick and secure option.</p>
+                        <a href="https://paypal.me/codysfinace" target="_blank" class="inline-block bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Donate with PayPal</a>
+                    </div>
+                </div>
+            </section>
         </div>
         <footer class="footer">
             <p>Made with <i class="fas fa-heart text-red-500"></i> by CoYoMcFroYo and Grok | Data from <a href="https://growagarden.fandom.com/wiki/Crops#All" target="_blank" class="text-green-600 hover:underline">Grow a Garden Wiki</a> | &copy; 2025</p>
@@ -449,6 +757,13 @@
             document.getElementById('weight').value = document.getElementById('base_weight').value; // Set actual weight to base by default
         }
 
+        function toggleSection(id) {
+            const content = document.getElementById(id);
+            content.classList.toggle('active');
+            const chevron = content.previousElementSibling.querySelector('.fa-chevron-down');
+            chevron.classList.toggle('fa-chevron-up');
+        }
+
         function resetForm() {
             document.getElementById('crop').value = '';
             document.getElementById('base_value').value = 1;
@@ -456,8 +771,11 @@
             document.getElementById('weight').value = 1;
             document.getElementById('growth').value = 'none';
             document.querySelectorAll('.mutation').forEach(cb => cb.checked = false);
+            document.getElementById('crop-value').innerText = 'Crop Value: 0.00';
+            document.getElementById('growth-multi').innerText = 'Growth Multiplier: 0.00x';
+            document.getElementById('env-multi').innerText = 'Environmental Multiplier: 0.00x';
+            document.getElementById('total-multi').innerText = 'Total Multiplier: 0.00x';
             document.getElementById('total-price').innerText = 'Total Price: 0.00 Sheckles';
-            document.getElementById('multiplier').innerText = 'Mutation Multiplier: 0.00x';
             document.getElementById('progress-fill').style.width = '0%';
             const output = document.getElementById('output');
             output.classList.remove('show');
@@ -516,8 +834,11 @@
             const total_price = crop_value * total_multi;
 
             const output = document.getElementById('output');
+            document.getElementById('crop-value').innerText = `Crop Value: ${crop_value.toFixed(2)}`;
+            document.getElementById('growth-multi').innerText = `Growth Multiplier: ${growth_multi.toFixed(2)}x`;
+            document.getElementById('env-multi').innerText = `Environmental Multiplier: ${env_multi.toFixed(2)}x`;
+            document.getElementById('total-multi').innerText = `Total Multiplier: ${total_multi.toFixed(2)}x`;
             document.getElementById('total-price').innerText = `Total Price: ${total_price.toFixed(2)} Sheckles`;
-            document.getElementById('multiplier').innerText = `Mutation Multiplier: ${total_multi.toFixed(2)}x`;
             // Update progress bar (scaled to max multiplier of 500 for visualization)
             document.getElementById('progress-fill').style.width = `${Math.min((total_multi / 500) * 100, 100)}%`;
             output.classList.remove('show');
